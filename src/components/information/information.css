@@ -1,0 +1,60 @@
+/* information.css */
+
+/* Container for the entire form */
+.informationform {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; 
+  }
+.gender{
+    margin-bottom: 8px;
+}
+.css-4jnixx-MuiStack-root{
+    margin-bottom: 8px !important;
+}
+.submitbtn{
+    width: 150px;
+    height: 40px;
+}
+.innerbox {
+    border: 1px solid #ccc; /* Set your desired border color */
+    border-radius: 10px; /* Set your desired border-radius */
+    padding-left: 50px; /* Set your desired padding */
+    padding-right: 50px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    max-height: 500px; /* Set your desired maximum height */
+    margin: auto; /* Center the box horizontally */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+.outerbox{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Use the full height of the viewport */
+}
+.infotext{
+    font-weight:700 !important;
+    font-size:28px !important;
+    margin-bottom: 4% !important;
+    font-family:sans-serif;
+}
+.profile_img{
+    cursor: pointer;
+    border-radius: 100% !important;
+    height: 75px;
+    width: 75px;
+    transition: .5s ease;
+    /* display: none; */
+}
+.profile_img:hover{
+    opacity: 0.8;
+}
+.inputProfile{
+    display:none
+}
+

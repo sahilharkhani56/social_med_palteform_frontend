@@ -1,0 +1,58 @@
+.profilePortion {
+  box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+  padding-left: 0% !important;
+}
+.appBarProfile {
+  -webkit-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  -o-transform: translate(0, 0);
+  transform: translate(0, 0);
+  background-color: #fff !important;
+  color: #000 !important;
+}
+.appBarUsername {
+  font-weight: 700 !important;
+}
+.outerBoxProfile {
+  margin-top: 2%;
+  margin-left: 2%;
+  padding: 0% !important;
+}
+.interDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* padding-left: 0% !important; */
+  padding-left: 40px !important;
+}
+.innerInterDetails {
+  display: flex;
+  align-items: center;
+}
+.profilePhoto {
+  height: 130px !important;
+  width: 130px !important;
+  border: 2px solid #f1efef;
+}
+.followersDetail {
+  margin-left: 40px !important;
+}
+.followingDetail {
+  margin-left: 40px !important;
+}
+@media (max-width: 600px) {
+  .profilePhoto {
+    height: 60px !important;
+    width: 60px !important;
+    border: 2px solid #f1efef;
+  }
+  .followersDetail {
+    margin-left: 10px !important;
+  }
+  .followingDetail {
+    margin-left: 10px !important;
+  }
+  .interDetails{
+    padding-left: 2px !important;
+  }
+}

@@ -1,0 +1,69 @@
+.sidebar {
+	margin-top: 0;
+	flex: .33;
+	padding: 20px 10px;
+  /* box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); */
+  flex: 0 0 250px;
+  height: 100%;
+  -webkit-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  -o-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
+
+
+* {
+	font-family: 'Roboto', sans-serif;
+	text-decoration: none;
+}
+
+.name {
+	font-size: 16px;
+	text-decoration: none;
+}
+#tweet{
+  border-radius: 50px;
+  background-color: #1DA1F2;
+  color: white;
+  width: 100%;
+  height: 50px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+.sidebarRow {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin-left: 10px;
+  cursor: pointer;
+  color: #000000;
+}
+
+.sidebarRow:hover {
+  background-color: rgb(240, 240, 240);
+  /* border-radius: 10px; */
+  border-radius: 50px;
+  transition: color 100ms ease-out;
+}
+
+.sidebarRow > h4 {
+  margin-left: 20px;
+  font-weight: 600;
+}
+
+.sidebarRow > .MuiSvgIcon-root {
+  font-size: xx-large;
+  color: #000000;
+}
+* {
+	margin: 0;
+}
+@media (max-width: 1000px) {
+  .sidebarRow > h4 {
+    display: none; 
+    margin-left: 0px !important;/* Hide the text when the screen size is small */
+  }
+  .sidebarRow > .MuiSvgIcon-root {
+    font-size: xx-large; 
+  }
+}
