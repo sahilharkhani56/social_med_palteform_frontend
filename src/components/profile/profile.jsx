@@ -1,7 +1,7 @@
 import { Sidebar } from "../sidebar/sidebar";
 import React from "react";
 import { Grid, Typography, Avatar, Button, Box, Stack } from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
+import { ArrowBack, Padding } from "@mui/icons-material";
 import AppBar from "@mui/material/AppBar";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
@@ -10,17 +10,62 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { EditProfile } from "./editProfile";
+import firebase, { auth, db } from "../../setup/firebase.js";
+import "firebase/compat/firestore";
 import "./profile.css";
+import toast from "react-hot-toast";
 const urlResult = `${import.meta.env.VITE_BACKEND_URI}/api/user`;
 const Profile = () => {
   const usernameSelector = useSelector((state) => state.user.user);
   const [isFollowing, setIsFollowing] = React.useState(false);
+  const [followerCount, setfollowerCount] = React.useState(0);
+  const [followingCount, setfollowingCount] = React.useState(0);
+  const [postCount, setPostCount] = React.useState(0);
+  const [userDetail, setUserDetail] = React.useState({});
+  const { profileName } = useParams();
   let navigate = useNavigate();
   const handleFollowToggle = () => {
     setIsFollowing((prev) => !prev);
   };
-  const [userDetail, setUserDetail] = React.useState({});
-  const { profileName } = useParams();
+  const handleFollow = async () => {
+    const follower_id = usernameSelector.uid;
+    const followee_id = userDetail.uid;
+    const docRef = firebase.firestore().collection("connections");
+    try {
+      await docRef.add({
+        follower_id,
+        followee_id,
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error(error);
+    }
+    setIsFollowing((prev) => !prev);
+    setfollowerCount((value) => {
+      return value + 1;
+    });
+  };
+  const handleUnfollow = async () => {
+    const follower_id = userDetail.uid;
+    const followee_id = usernameSelector.uid;
+    const docRef = firebase.firestore().collection("connections");
+    try {
+      const dataConnections = await docRef
+        .where("follower_id", "==", follower_id)
+        .where("followee_id", "==", followee_id)
+        .get();
+      // console.log(dataConnections.docs.length);
+      await dataConnections.docs[0].ref.delete();
+    } catch (error) {
+      console.log(error);
+      //   toast.error(error);
+    }
+    setIsFollowing((prev) => !prev);
+    setfollowerCount((value) => {
+      return value - 1;
+    });
+  };
+
   // if (profileName === usernameSelector.username) {
   //   setIsCurrentUser(true);
   //   console.log("hello");
@@ -30,12 +75,37 @@ const Profile = () => {
       const userDetailFetch = await axios.get(`${urlResult}/${profileName}`);
       setUserDetail(userDetailFetch.data);
     } catch (error) {
+      toast.error(error);
       console.error("Error fetching user details:", error);
     }
   };
+  const fetchFollwerCount = async () => {
+    const docRef = firebase.firestore().collection("connections");
+    const currentProfile_id = userDetail.uid;
+    const followerData = await docRef
+      .where("followee_id", "==", currentProfile_id)
+      .get();
+    setfollowerCount((value) => {
+        if(!followerData.exists)return value;
+      return followerData.docs.length ;
+    });
+  };
+  const fetchFollwingCount = async () => {
+    const docRef = firebase.firestore().collection("connections");
+    const currentProfile_id = userDetail.uid;
+    const followingData = await docRef
+      .where("follower_id", "==", currentProfile_id)
+      .get();
+    setfollowingCount((value) => {
+        if(!followingData.exists)return value;
+      return followingData.docs.length;
+    });
+  };
   React.useEffect(() => {
     fetchInfo();
-  }, [profileName]);
+    fetchFollwerCount();
+    fetchFollwingCount();
+  }, [profileName, usernameSelector]);
   return (
     <div className="grid-container">
       <Grid container spacing={3}>
@@ -90,22 +160,26 @@ const Profile = () => {
                 >
                   <Stack direction="row" spacing={2}>
                     <Box className="postDetail">
-                      <Typography variant="subtitle1">Posts</Typography>
+                      <Typography variant="subtitle1">{postCount}</Typography>
                       <Typography variant="subtitle1">Posts</Typography>
                     </Box>
                     <Box className="followersDetail">
-                      <Typography variant="subtitle1">Followers</Typography>
+                      <Typography variant="subtitle1">
+                        {followerCount}
+                      </Typography>
                       <Typography variant="subtitle1">Followers</Typography>
                     </Box>
                     <Box className="followingDetail">
-                      <Typography variant="subtitle1">Following</Typography>
+                      <Typography variant="subtitle1">
+                        {followingCount}
+                      </Typography>
                       <Typography variant="subtitle1">Following</Typography>
                     </Box>
                   </Stack>
                   <Grid direction="column" className="btnParent" container>
                     <Box textAlign="center">
                       {profileName === usernameSelector.username ? (
-                        <EditProfile userDetail={userDetail}/>
+                        <EditProfile userDetail={userDetail} />
                       ) : (
                         <>
                           {isFollowing ? (
@@ -113,7 +187,7 @@ const Profile = () => {
                               variant="contained"
                               color="primary"
                               className="btnboth unfollowBtn"
-                              onClick={handleFollowToggle}
+                              onClick={handleUnfollow}
                             >
                               Unfollow
                             </Button>
@@ -122,7 +196,7 @@ const Profile = () => {
                               variant="contained"
                               color="primary"
                               className="btnboth followBtn"
-                              onClick={handleFollowToggle}
+                              onClick={handleFollow}
                             >
                               Follow
                             </Button>
@@ -135,22 +209,22 @@ const Profile = () => {
               </Grid>
             </Grid>
           </Box>
-
+          <Stack direction="column" spacing={1} pl={"3%"} pr={"3%"}>
+            <Typography variant="h6" fontWeight={700}>
+              {userDetail?.username}
+            </Typography>
+            <Typography variant="body1" style={{ marginTop: "0px" }}>
+              {userDetail?.bio}
+            </Typography>
+          </Stack>
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
             }}
-          >
-            <Typography variant="body1" style={{ marginTop: 10 }}>
-              This is the bio section. It can contain a brief description of the
-              user.
-            </Typography>
-          </div>
+          ></div>
 
-          {/* Other Content Goes Here */}
-          {/* For example, display user's posts, additional information, etc. */}
           <p>
             Other Content Goes Here A paragraph is a series of sentences that
             are organized and coherent, and are all related to a single topic.

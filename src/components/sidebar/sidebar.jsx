@@ -25,7 +25,7 @@ export const Sidebar = ({ defaultActive }) => {
   return (
     <div className="sidebar">
       <Box className="sidebarRow">
-        <Avatar src={usernameSelector.profile || avatar} />
+        <Avatar src={usernameSelector.profile || ''} />
         <h4>{usernameSelector.username}</h4>
       </Box>
       {SidebarItems.map((item, index) => {

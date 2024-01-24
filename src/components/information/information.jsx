@@ -20,7 +20,6 @@ import { Typography } from "@mui/material";
 import avatar from "../../assets/avatar.jpg";
 import convertToBase64 from "../../helper/converToBase64";
 import firebase, { auth, db } from "../../setup/firebase.js";
-// import firebase from 'firebase/compat/app';
 import "firebase/compat/firestore";
 import axios from "axios";
 import { login } from "../../store/userSlice.js";

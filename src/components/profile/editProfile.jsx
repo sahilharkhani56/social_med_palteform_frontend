@@ -14,35 +14,59 @@ import {
   InputAdornment,
 } from "@mui/material";
 import firebase, { auth, db } from "../../setup/firebase.js";
-// import firebase from 'firebase/compat/app';
+import axios from "axios";
 import "firebase/compat/firestore";
 import CloseIcon from "@mui/icons-material/Close";
 import "./editProfile.css";
 import convertToBase64 from "../../helper/converToBase64";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { login } from "../../store/userSlice.js";
+import { useNavigate } from "react-router-dom";
+const editInformationUrl = `${
+  import.meta.env.VITE_BACKEND_URI
+}/api/editInformation`;
 export const EditProfile = ({ userDetail }) => {
+  const dispatch = useDispatch();
+  const navigateTo=useNavigate();
   const [open, setOpen] = React.useState(false);
-  const [file, setFile] = React.useState(userDetail.profile);
-  const handleEdit = async(event) => {
+  const [file, setFile] = React.useState('');
+  const handleEdit = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const formJson = Object.fromEntries(formData.entries());
     const usernameFieldModal = formJson.usernameFieldModal;
     const bioFieldModal = formJson.bioFieldModal;
-    console.log(usernameFieldModal,bioFieldModal);
     const docRef = firebase.firestore().collection("users");
     try {
-      const snapshot = await docRef.where("username", "==", usernameFieldModal).get();
+      const snapshot = await docRef
+        .where("username", "==", usernameFieldModal)
+        .get();
       if (!snapshot.empty && snapshot.docs[0].id != userDetail.uid) {
         toast.error(`Username ${usernameFieldModal} is not available`);
         return;
       }
+      await axios.post(editInformationUrl, {
+        username: usernameFieldModal,
+        profile: file,
+        uid: userDetail.uid,
+        bio: bioFieldModal,
+      });
+      dispatch(
+        login({
+          uid: auth.currentUser.uid,
+          email: userDetail.email,
+          username: usernameFieldModal,
+          profile: file,
+          isInformationUpdated: true,
+        })
+      );
+      navigateTo(`/${usernameFieldModal}`)
     } catch (error) {
       console.log(error);
       toast.error(`Please try again!`);
       return;
     }
-    
     handleOpenEditModalClose();
   };
   const handleOpenEditModalOpen = () => {
@@ -120,7 +144,6 @@ export const EditProfile = ({ userDetail }) => {
               className="inputProfile"
             ></input>
             <TextField
-              autoFocus
               required
               margin="dense"
               defaultValue={userDetail.username}
@@ -133,7 +156,6 @@ export const EditProfile = ({ userDetail }) => {
             />
           </Stack>
           <TextField
-            autoFocus
             required
             margin="dense"
             defaultValue={userDetail.bio}
