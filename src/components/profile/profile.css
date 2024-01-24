@@ -18,12 +18,10 @@
   margin-left: 2%;
   padding: 0% !important;
 }
-.interDetails {
+.interDetails{
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* padding-left: 0% !important; */
-  padding-left: 40px !important;
 }
 .innerInterDetails {
   display: flex;
@@ -40,6 +38,19 @@
 .followingDetail {
   margin-left: 40px !important;
 }
+.btnboth{
+  text-transform: none !important;
+  font-size: large !important;
+  width: 120px;
+  height: 38px;
+}
+.editBtn{
+  width: 170px ;
+  height: 38px;
+}
+.btnParent{
+  margin-top: 3%;
+}
 @media (max-width: 600px) {
   .profilePhoto {
     height: 60px !important;
@@ -55,4 +66,23 @@
   .interDetails{
     padding-left: 2px !important;
   }
+  .btnboth{
+    width: 200px !important;
+    height: 24px !important;
+    font-size: 15px !important;
+    text-transform: none !important;
+  }
 }
+.unfollowBtn{
+  background-color: #EEF0E5 !important;
+  color: black !important;
+  box-shadow: none !important;
+}
+.unfollowBtn:hover,.followbtn:hover{
+  box-shadow: none !important;
+}
+.followbtn{
+  box-shadow: none !important;
+}
+
+

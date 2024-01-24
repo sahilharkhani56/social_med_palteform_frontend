@@ -1,0 +1,42 @@
+.btnboth {
+  text-transform: none !important;
+  font-size: large !important;
+  width: 120px;
+  height: 38px;
+}
+.editBtn {
+  width: 170px;
+  height: 38px;
+}
+.editDetailTitle {
+  padding: 0% !important;
+  font-size: 25px !important;
+  margin: auto !important;
+  font-weight: 600 !important;
+}
+.profileImg {
+  height: 100px !important;
+  width: 100px !important;
+  border: 2px solid #f1efef;
+  cursor: pointer;
+}
+.editToolbar {
+  padding: 0% !important;
+}
+@media (max-width: 600px) {
+  .btnboth {
+    width: 200px !important;
+    height: 24px !important;
+    font-size: 15px !important;
+    text-transform: none !important;
+  }
+  .editDetailTitle {
+    padding: 0% !important;
+    font-size: 20px !important;
+  }
+  .profileImg {
+    height: 60px !important;
+    width: 60px !important;
+    border: 2px solid #f1efef;
+  }
+}

@@ -1,16 +1,19 @@
 import { Sidebar } from "../sidebar/sidebar";
 import React from "react";
-import { Grid, Typography, Avatar, Button, Box } from "@mui/material";
+import { Grid, Typography, Avatar, Button, Box, Stack } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import AppBar from "@mui/material/AppBar";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axios from "axios";
+import { EditProfile } from "./editProfile";
 import "./profile.css";
 const urlResult = `${import.meta.env.VITE_BACKEND_URI}/api/user`;
 const Profile = () => {
+  const usernameSelector = useSelector((state) => state.user.user);
   const [isFollowing, setIsFollowing] = React.useState(false);
   let navigate = useNavigate();
   const handleFollowToggle = () => {
@@ -18,6 +21,10 @@ const Profile = () => {
   };
   const [userDetail, setUserDetail] = React.useState({});
   const { profileName } = useParams();
+  // if (profileName === usernameSelector.username) {
+  //   setIsCurrentUser(true);
+  //   console.log("hello");
+  // }
   const fetchInfo = async () => {
     try {
       const userDetailFetch = await axios.get(`${urlResult}/${profileName}`);
@@ -66,30 +73,65 @@ const Profile = () => {
                   className="profilePhoto"
                 />
               </Grid>
-              <Grid item xs={8} className="interDetails">
-                <Box className="innerInterDetails">
-                  <Box className="postDetail">
-                    <Typography variant="subtitle1">Posts</Typography>
-                    <Typography variant="subtitle1">Posts</Typography>
-                  </Box>
-                  <Box className="followersDetail">
-                    <Typography variant="subtitle1">Followers</Typography>
-                    <Typography variant="subtitle1">Followers</Typography>
-                  </Box>
-                  <Box className="followingDetail">
-                    <Typography variant="subtitle1">Following</Typography>
-                    <Typography variant="subtitle1">Following</Typography>
-                  </Box>
-                </Box>
-                <Box>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleFollowToggle}
+              <Grid
+                item
+                xs={8}
+                container
+                className="interDetails"
+                direction="column"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Grid
+                  direction="column"
+                  container
+                  alignItems="center"
+                  justifyContent="center"
                 >
-                  {isFollowing ? "Unfollow" : "Follow"}
-                </Button>
-                </Box>
+                  <Stack direction="row" spacing={2}>
+                    <Box className="postDetail">
+                      <Typography variant="subtitle1">Posts</Typography>
+                      <Typography variant="subtitle1">Posts</Typography>
+                    </Box>
+                    <Box className="followersDetail">
+                      <Typography variant="subtitle1">Followers</Typography>
+                      <Typography variant="subtitle1">Followers</Typography>
+                    </Box>
+                    <Box className="followingDetail">
+                      <Typography variant="subtitle1">Following</Typography>
+                      <Typography variant="subtitle1">Following</Typography>
+                    </Box>
+                  </Stack>
+                  <Grid direction="column" className="btnParent" container>
+                    <Box textAlign="center">
+                      {profileName === usernameSelector.username ? (
+                        <EditProfile userDetail={userDetail}/>
+                      ) : (
+                        <>
+                          {isFollowing ? (
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              className="btnboth unfollowBtn"
+                              onClick={handleFollowToggle}
+                            >
+                              Unfollow
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              className="btnboth followBtn"
+                              onClick={handleFollowToggle}
+                            >
+                              Follow
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </Box>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </Box>
