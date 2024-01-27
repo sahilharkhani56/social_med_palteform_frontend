@@ -8,8 +8,7 @@ import Connection from "../components/connection/connection";
 import Profile from "../components/profile/profile";
 import Bookmark from "../components/bookmark/bookmark";
 import Setting from "../components/setting/setting";
-import { AuthInformation } from "../middleware/authInformation";
-import { AuthUser } from "../middleware/authUser";
+import { AuthUser,UserExits,AuthInformation } from "../middleware/authUser";
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -41,7 +40,7 @@ const Router = createBrowserRouter([
   },
   {
     path:'/:profileName',
-    element:<Profile/>
+    element:<UserExits><Profile/></UserExits>
   },
   {
     path:'/setting',

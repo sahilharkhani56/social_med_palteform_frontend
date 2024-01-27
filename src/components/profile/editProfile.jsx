@@ -48,20 +48,20 @@ export const EditProfile = ({ userDetail }) => {
       }
       await axios.post(editInformationUrl, {
         username: usernameFieldModal,
-        profile: file,
+        profile: file || userDetail.profile,
         uid: userDetail.uid,
         bio: bioFieldModal,
       });
       dispatch(
         login({
-          uid: auth.currentUser.uid,
+          uid: userDetail.uid,
           email: userDetail.email,
           username: usernameFieldModal,
-          profile: file,
+          profile: file || userDetail.profile,
           isInformationUpdated: true,
         })
       );
-      navigateTo(`/${usernameFieldModal}`)
+      navigateTo(`/${usernameFieldModal}`, { replace: true })
     } catch (error) {
       console.log(error);
       toast.error(`Please try again!`);
@@ -91,7 +91,7 @@ export const EditProfile = ({ userDetail }) => {
       </Button>
       <Dialog
         open={open}
-        onClose={handleOpenEditModalOpen}
+        onClose={handleOpenEditModalClose}
         maxWidth="sm"
         fullWidth
         className="dialogModal"

@@ -5,11 +5,13 @@ import { useNavigate } from "react-router-dom";
 import SidebarItems from "./sidebarItems";
 import Box from "@mui/material/Box";
 import avatar from "../../assets/avatar.jpg";
-import {Link } from "@mui/material";
+import {IconButton, Link } from "@mui/material";
 import Post from "./post";
-import { Avatar } from "@mui/material";
+import { Avatar,Menu,MenuItem } from "@mui/material";
 export const Sidebar = ({ defaultActive }) => {
   const usernameSelector = useSelector((state) => state.user.user);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
   const [activeIndex, setActiveIndex] = React.useState(defaultActive || 0);
   const navigateTo = useNavigate();
   const handleLinkClick = (route, index) => {
@@ -21,13 +23,31 @@ export const Sidebar = ({ defaultActive }) => {
     navigateTo(route);
     setActiveIndex(index);
   };
-
+  const handleOpenMenuProfile=(event)=>{
+    setAnchorEl(event.currentTarget);
+  }
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   return (
     <div className="sidebar">
-      <Box className="sidebarRow">
+      <Box className="sidebarRow" onClick={handleOpenMenuProfile}>
         <Avatar src={usernameSelector.profile || ''} />
         <h4>{usernameSelector.username}</h4>
       </Box>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem onClick={handleClose}>Profile</MenuItem>
+        <MenuItem onClick={handleClose}>My account</MenuItem>
+        <MenuItem onClick={handleClose}>Logout</MenuItem>
+      </Menu>
       {SidebarItems.map((item, index) => {
         return (
           <Link

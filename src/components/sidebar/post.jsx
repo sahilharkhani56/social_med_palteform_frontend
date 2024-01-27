@@ -27,6 +27,7 @@ const Post = () => {
     const formData = new FormData(event.currentTarget);
     const formJson = Object.fromEntries(formData.entries());
     const inputFieldModal = formJson.inputFieldModal;
+    
     console.log(inputFieldModal);
     handleOpenPostModalClose();
   };
