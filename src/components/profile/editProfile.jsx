@@ -23,14 +23,22 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/userSlice.js";
 import { useNavigate } from "react-router-dom";
+import {
+  getDownloadURL,
+  ref as storageRef,
+  uploadBytes,
+} from "firebase/storage";
+import {storage } from "../../setup/firebase";
+import { v4 as uuidv4 } from 'uuid';
 const editInformationUrl = `${
   import.meta.env.VITE_BACKEND_URI
 }/api/editInformation`;
 export const EditProfile = ({ userDetail }) => {
   const dispatch = useDispatch();
-  const navigateTo=useNavigate();
+  const navigateTo = useNavigate();
   const [open, setOpen] = React.useState(false);
-  const [file, setFile] = React.useState('');
+  const [file, setFile] = React.useState(null);
+  const [dataImage, setDataImage] = React.useState(null);
   const handleEdit = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -46,25 +54,45 @@ export const EditProfile = ({ userDetail }) => {
         toast.error(`Username ${usernameFieldModal} is not available`);
         return;
       }
-      await axios.post(editInformationUrl, {
-        username: usernameFieldModal,
-        profile: file || userDetail.profile,
-        uid: userDetail.uid,
-        bio: bioFieldModal,
-      });
+      let imageDownloadUrl = null;
+      if (file) {
+        try {
+          const imageRef = storageRef(storage, `images/${uuidv4()}`);
+          const snapshot = await uploadBytes(imageRef, file);
+          const url = await getDownloadURL(snapshot.ref);
+          imageDownloadUrl = url;
+        } catch (error) {
+          toast.error(error.message)
+          console.error("Error uploading image:", error);
+        }
+      }
+      await Promise.all([
+        imageDownloadUrl && setDataImage(imageDownloadUrl),
+        axios.post(editInformationUrl, {
+          profile: file ? imageDownloadUrl :userDetail.profile,
+          username: usernameFieldModal,
+          uid: userDetail.uid,
+          bio: bioFieldModal,
+        }),
+      ]);
+      // await axios.post(editInformationUrl, {
+      //   username: usernameFieldModal,
+      //   profile: file || userDetail.profile,
+      //   uid: userDetail.uid,
+      //   bio: bioFieldModal,
+      // });
       dispatch(
         login({
           uid: userDetail.uid,
           email: userDetail.email,
           username: usernameFieldModal,
-          profile: file || userDetail.profile,
-          isInformationUpdated: true,
+          profile:  file ? imageDownloadUrl :userDetail.profile,
         })
       );
-      navigateTo(`/${usernameFieldModal}`, { replace: true })
+      navigateTo(`/${usernameFieldModal}`, { replace: true });
     } catch (error) {
       console.log(error);
-      toast.error(`Please try again!`);
+      toast.error(error.message);
       return;
     }
     handleOpenEditModalClose();
@@ -76,8 +104,7 @@ export const EditProfile = ({ userDetail }) => {
     setOpen(false);
   };
   const onUpload = async (e) => {
-    const base64 = await convertToBase64(e.target.files[0]);
-    setFile(base64);
+    setFile(e.target.files[0]);
   };
   return (
     <>
@@ -131,7 +158,7 @@ export const EditProfile = ({ userDetail }) => {
           <Stack direction="row" spacing={4}>
             <label htmlFor="profile">
               <Avatar
-                src={file || userDetail.profile}
+                src={file ? URL.createObjectURL(file) : userDetail.profile}
                 className="profileImg"
                 alt="image"
               ></Avatar>
@@ -142,6 +169,7 @@ export const EditProfile = ({ userDetail }) => {
               name="profile"
               onChange={onUpload}
               className="inputProfile"
+              style={{display:'none'}}
             ></input>
             <TextField
               required

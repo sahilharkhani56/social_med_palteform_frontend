@@ -3,21 +3,18 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  CircularProgress,
-  Typography,
   Box,
   Tab,
   Tabs,
   AppBar,
+  CircularProgress,
 } from "@mui/material";
 import firebase, { auth, db } from "../../setup/firebase.js";
-import axios from "axios";
 import "firebase/compat/firestore";
 import { useTheme } from "@mui/material/styles";
 import SwipeableViews from "react-swipeable-views";
-import CloseIcon from "@mui/icons-material/Close";
 import "./showFollowFollowing.css";
-import ListFollowFollowing from "./listFollowFollowing.jsx";
+import ShowList from "./listFollowFollowing.jsx";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -63,40 +60,46 @@ const ShowFollowFollowing = ({
     setValue(index);
   };
   const dataExtraction = async (information, tp) => {
-    var tempInformation = [];
-    information.forEach((id) => {
-      try {
+    try {
+      const tempInformation = [];
+      const informationPromise = information.map(async (id) => {
         const docRefUser = firebase.firestore().collection("users").doc(id);
-        const snapshot = docRefUser.onSnapshot((querySnapshot) => {
-          const { username, profile, bio } = querySnapshot.data();
+        const snapshot = await docRefUser.get();
+        if (snapshot.exists) {
+          const { username, profile, bio } = snapshot.data();
           tempInformation.push({ username, profile, bio });
-        });
-      } catch (error) {
-        console.error("Error fetching user details:", error);
+        }
+      });
+      await Promise.all(informationPromise);
+      if (tp === "follower") {
+        setFollowerDetailEx(tempInformation);
+      } else {
+        setFollowingDetailEx(tempInformation);
       }
-      tp === "follower"
-        ? setFollowerDetailEx(tempInformation)
-        : setFollowingDetailEx(tempInformation);
-    });
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setIsLoading(false);
   };
+
   const followerDetailDataExtraction = () => {
+    setIsLoading(true);
     dataExtraction(followerDetail, "follower");
   };
+
   const followingDetailDataExtraction = () => {
+    setIsLoading(true);
     dataExtraction(followingDetail, "following");
   };
   React.useEffect(() => {
-    followerDetailDataExtraction();
-    followingDetailDataExtraction();
-  }, [open]);
-  React.useEffect(() => {
-    const d = setTimeout(() => {
-      setIsLoading(false);
-    }, 1900);
-    return () => {
-      clearTimeout(d);
-    };
-  }, [open]);
+    if (open) {
+      if (value === 0) {
+        followerDetailDataExtraction();
+      } else {
+        followingDetailDataExtraction();
+      }
+    }
+  }, [open, value]);
   return (
     <>
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -117,14 +120,14 @@ const ShowFollowFollowing = ({
             </Tabs>
           </AppBar>
         </DialogTitle>
-        <DialogContent style={{ maxHeight: "300px", minHeight: "300px" }}>
+        <DialogContent style={{ maxHeight: "300px", minHeight: "300px" }} className="listFollowFollowing">
           <Box sx={{ bgcolor: "background.paper", width: "100%" }}>
             <SwipeableViews
               index={value}
               onChangeIndex={handleChangeIndex}
               className="slider"
             >
-              <TabPanel value={value} active="true" index={0}>
+              <TabPanel value={value} index={0} >
                 {isLoading ? (
                   <Box
                     alignItems="center"
@@ -135,14 +138,14 @@ const ShowFollowFollowing = ({
                       width: "100%",
                     }}
                   >
-                    <CircularProgress />
+                    <CircularProgress/>
                   </Box>
                 ) : (
-                  <ListFollowFollowing DetailEx={followerDetailEx} />
+                <ShowList DetailEx={followerDetailEx} />
                 )}
               </TabPanel>
               <TabPanel value={value} index={1}>
-                {isLoading ? (
+              {isLoading ? (
                   <Box
                     alignItems="center"
                     justifyContent="center"
@@ -152,16 +155,15 @@ const ShowFollowFollowing = ({
                       width: "100%",
                     }}
                   >
-                    <CircularProgress />
+                    <CircularProgress/>
                   </Box>
                 ) : (
-                  <ListFollowFollowing DetailEx={followingDetailEx} />
+                <ShowList DetailEx={followingDetailEx} />
                 )}
               </TabPanel>
             </SwipeableViews>
           </Box>
         </DialogContent>
-
       </Dialog>
     </>
   );

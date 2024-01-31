@@ -36,13 +36,10 @@ export default function SignIn() {
     // email='1@gmail.com';
     // password='123@123';
     try {
-      // await signInWithEmailAndPassword(auth, email, password);
       signInWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
           const docRef = firebase.firestore().collection("users").doc(auth.currentUser.uid);
           const userDataSnapShot = await docRef.get();
-          // console.log(userDataSnapShot.data());
-          if (userDataSnapShot.exists) {
             const userData = userDataSnapShot.data();
             dispatch(
               login({
@@ -50,60 +47,23 @@ export default function SignIn() {
                 email: email,
                 username: userData.username,
                 profile: userData.profile,
-                isInformationUpdated: true,
               })
             );
-          } else {
-            dispatch(
-              login({
-                uid:auth.currentUser.uid,
-                email: email,
-                username: "",
-                profile: "",
-                isInformationUpdated: false,
-              })
-            );
-          }
           toast.success("Login Successfully");
-          navigateTo("/information");
+          navigateTo("/home");
         })
         .catch((err) => {
-          console.log(err.code);
-          console.log(err.message);
           toast.error(err.message);
-          return;
         });
     } catch (error) {
-      toast.error(error);
-      return;
+      toast.error(error.message)
     }
   };
   const logGoogleUser = async () => {
     await signInWithPopup(auth, googleAuthProvider);
-    // console.log(user);
-    // console.log(auth.currentUser);
     try {
-      // const UsersCollectionRef = collection(db, "users");
-      // const userDocRef=doc(UsersCollectionRef,auth.currentUser.uid);
-      // const userDataSnapShot=await getDoc(userDocRef);
-      // if(userDataSnapShot.exists()){
-      //   const userData=userDataSnapShot.data();
-      //   dispatch(login({ email: userData.email, username: userData.username, profile: userData.profile ,isInformationUpdated:true}));
-      // }
-      // else{
-      //   await setDoc(userDocRef, {
-      //     email:auth.currentUser.email,
-      //     username:auth.currentUser.displayName,
-      //     birthdate:'',
-      //     phonenumber:'',
-      //     gender:'',
-      //     profile:auth.currentUser.photoURL,
-      //     })
-      //   dispatch(login({ email: auth.currentUser.email, username: auth.currentUser.displayName, profile: auth.currentUser.photoURL ,isInformationUpdated:false}));
-      // }
       const docRef = firebase.firestore().collection("users").doc(auth.currentUser.uid);
       const userDataSnapShot = await docRef.get();
-      // console.log(userDataSnapShot.data());
       if (userDataSnapShot.exists) {
         const userData = userDataSnapShot.data();
         dispatch(
@@ -112,47 +72,28 @@ export default function SignIn() {
             email: userData.email,
             username: userData.username,
             profile: userData.profile,
-            isInformationUpdated: true,
           })
         );
       } else {
-        // await docRef.set({
-        //   email:auth.currentUser.email,
-        //   username:auth.currentUser.displayName,
-        //   birthdate: '',
-        //   phonenumber:'',
-        //   gender:'',
-        //   profile:auth.currentUser.photoURL ,
-        // })
-        const addInformation = await axios.post(informationURL, {
+        await axios.post(informationURL, {
           email: auth.currentUser.email,
           username: auth.currentUser.displayName,
-          birthdate: "",
-          phonenumber: "",
-          gender: "",
           profile: auth.currentUser.photoURL,
           uid: auth.currentUser.uid,
         });
-        if (!addInformation.status) {
-          toast.error(addInformation.data.error);
-          return;
-        }
         dispatch(
           login({
             uid: auth.currentUser.uid,
             email: auth.currentUser.email,
             username: auth.currentUser.displayName,
             profile: auth.currentUser.photoURL,
-            isInformationUpdated: false,
           })
         );
       }
     } catch (error) {
       console.log(error);
-      toast.error(error);
+      toast.error(error.message);
     }
-
-    // dispatch(login({ email: auth.currentUser.email, username: auth.currentUser.displayName, profile: auth.currentUser.photoURL }));
     toast.success("Login Successfully");
     navigateTo("/information");
   };
@@ -167,7 +108,6 @@ export default function SignIn() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          // border: "1px solid",
           p: "1.5rem",
           pt: "2rem",
           pb: "3rem",

@@ -7,12 +7,12 @@ import {
   Box,
   Avatar,
 } from "@mui/material";
-const ListFollowFollowing = ({ DetailEx }) => {
+const ShowList = ({ DetailEx }) => {
     return (
-      <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+      <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }} className="listFollowFollowing">
       {DetailEx.map((data, index) => (
         <ListItem alignItems="flex-start" key={index}>
-          <ListItemAvatar>
+          <ListItemAvatar sx={{marginTop:0}}>
             <Avatar src={data.profile || ""} />
           </ListItemAvatar>
           <Box>
@@ -29,4 +29,4 @@ const ListFollowFollowing = ({ DetailEx }) => {
   );
 };
 
-export default ListFollowFollowing;
+export default ShowList;

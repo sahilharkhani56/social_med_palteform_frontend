@@ -12,8 +12,8 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { EditProfile } from "./editProfile";
 import firebase, { auth, db } from "../../setup/firebase.js";
-import ShowFollowFollowing from "./showFollowFollowing.jsx";
 import "firebase/compat/firestore";
+import ShowFollowFollowing from "./showFollowFollowing.jsx";
 import "./profile.css";
 var userDetailFetch;
 const docRef = firebase.firestore().collection("connections");
@@ -37,7 +37,6 @@ const Profile = () => {
     setOpen(true);
   };
   const handleCloseFollowerFollowing = () => {
-    console.log("okay closed");
     setOpen(false);
   };
   const handleFollow = async () => {
@@ -68,6 +67,7 @@ const Profile = () => {
     setIsFollowing((prev) => !prev);
   };
   const fetchInfo = async () => {
+    // setIsLoading(true);
     try {
       const docRefUser = firebase.firestore().collection("users");
       const snapshot = await docRefUser
@@ -81,10 +81,12 @@ const Profile = () => {
           setUserDetail(userDetailFetch);
         });
     } catch (error) {
-      console.error("Error fetching user details:", error);
+      toast.error(error.message);
     }
+    // setIsLoading(false);
   };
   const isFollowingCheck = async () => {
+    // setIsLoading(true);
     try {
       const follower_id = usernameSelector?.uid;
       const followee_id = userDetail?.uid;
@@ -97,11 +99,13 @@ const Profile = () => {
           setIsFollowing((prev) => !prev);
         }
       }
+      // setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching ", error);
+      toast.error(error.message);
     }
   };
   const fetchFollowerCountDetail = async () => {
+    // setIsLoading(true);
     const currentProfile_id = userDetail?.uid;
     if (currentProfile_id) {
       try {
@@ -123,11 +127,13 @@ const Profile = () => {
             }
           );
       } catch (error) {
-        console.log(error);
+        toast.error(error.message);
       }
+      // setIsLoading(false);
     }
   };
   const fetchFollowingCountDetail = async () => {
+    // setIsLoading(true);
     const currentProfile_id = userDetail?.uid;
     if (currentProfile_id) {
       try {
@@ -149,26 +155,36 @@ const Profile = () => {
             }
           );
       } catch (error) {
-        console.log(error);
+        toast.error(error.message);
       }
+      // setIsLoading(false);
     }
   };
   React.useEffect(() => {
     fetchInfo();
   }, [profileName, usernameSelector]);
   React.useEffect(() => {
-    fetchFollowerCountDetail();
-    fetchFollowingCountDetail();
-    isFollowingCheck();
-  }, [userDetail]);
-  React.useEffect(() => {
-    const d = setTimeout(() => {
+    // setIsLoading(true);
+    const fetchData = async () => {
+      await Promise.all([
+        fetchFollowerCountDetail(),
+        fetchFollowingCountDetail(),
+        isFollowingCheck(),
+      ]);
+      // Set isLoading to false after all data is fetched.
       setIsLoading(false);
-    }, 1900);
-    return () => {
-      clearTimeout(d);
     };
-  }, []);
+
+    fetchData();
+  }, [userDetail]);
+  // React.useEffect(() => {
+  //   const d = setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 1900);
+  //   return () => {
+  //     clearTimeout(d);
+  //   };
+  // }, []);
   return (
     <div className="grid-container">
       <Grid container spacing={3}>
@@ -248,6 +264,7 @@ const Profile = () => {
                         <Box
                           className="followersDetail"
                           onClick={handleShowFollowerFollowing}
+                          sx={{ cursor: "pointer" }}
                         >
                           <Typography variant="subtitle1" align="center">
                             {followerCount}
@@ -259,6 +276,7 @@ const Profile = () => {
                         <Box
                           className="followingDetail"
                           onClick={handleShowFollowerFollowing}
+                          sx={{ cursor: "pointer" }}
                         >
                           <Typography variant="subtitle1" align="center">
                             {followingCount}
@@ -268,12 +286,16 @@ const Profile = () => {
                           </Typography>
                         </Box>
                       </Stack>
-                      <ShowFollowFollowing
-                        open={open}
-                        onClose={handleCloseFollowerFollowing}
-                        followerDetail={followerDetail}
-                        followingDetail={followingDetail}
-                      />
+                      {open ? (
+                        <ShowFollowFollowing
+                          open={open}
+                          onClose={handleCloseFollowerFollowing}
+                          followerDetail={followerDetail}
+                          followingDetail={followingDetail}
+                        />
+                      ) : (
+                        ""
+                      )}
                       <Grid direction="column" className="btnParent" container>
                         <Box textAlign="center">
                           {profileName === usernameSelector.username ? (

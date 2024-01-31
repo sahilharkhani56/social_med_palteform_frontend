@@ -4,3 +4,6 @@
 .css-1mcnwpj-MuiList-root{
     padding: 0px !important;
 }
+.listFollowFollowing::-webkit-scrollbar {
+    display: none;
+  }

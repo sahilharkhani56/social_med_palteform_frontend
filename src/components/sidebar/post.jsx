@@ -15,33 +15,63 @@ import TextField from "@mui/material/TextField";
 import { Button, Link } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import { useSelector } from "react-redux";
-import avatar from '../../assets/avatar.jpg';
-
+import {
+  getDownloadURL,
+  ref as storageRef,
+  uploadBytes,
+} from "firebase/storage";
+import {storage } from "../../setup/firebase";
+import { v4 as uuidv4 } from 'uuid';
+import axios from "axios";
+const postUrl=`${import.meta.env.VITE_BACKEND_URI}/api/post`;
 const Post = () => {
   const usernameSelector = useSelector((state) => state.user.user);
   const [open, setOpen] = React.useState(false);
+  const [dataImage,setDataImage]=React.useState(null);
   const [selectedImage, setSelectedImage] = React.useState(null);
-  const handlePost = (event) => {
+  const [checkImageUploaded,setCheckImageUploaded]=React.useState(false);
+  const handlePost = async(event) => {
     event.preventDefault();
-    console.log(selectedImage);
     const formData = new FormData(event.currentTarget);
     const formJson = Object.fromEntries(formData.entries());
     const inputFieldModal = formJson.inputFieldModal;
-    
-    console.log(inputFieldModal);
-    handleOpenPostModalClose();
+    let imageDownloadUrl = null;
+
+    if (selectedImage) {
+      try {
+        const imageRef = storageRef(storage, `images/${uuidv4()}`);
+        const snapshot = await uploadBytes(imageRef, selectedImage);
+        const url = await getDownloadURL(snapshot.ref);
+        imageDownloadUrl = url;
+      } catch (error) {
+        toast.error(error.message)
+      }
+    }
+  
+    try {
+      await Promise.all([
+        imageDownloadUrl && setDataImage(imageDownloadUrl),
+        axios.post(postUrl, {
+          image: selectedImage ? imageDownloadUrl : null,
+          text: inputFieldModal,
+          createdBy: usernameSelector.uid,
+        }),
+      ]);
+      handleOpenPostModalClose();
+    } catch (error) {
+      toast.error(error.message)
+    }
   };
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
-  };
-
+  };  
   const handleOpenPostModalOpen = () => {
     setOpen(true);
   };
   const handleOpenPostModalClose = () => {
-    setOpen(false);
     setSelectedImage(null);
+    setOpen(false);
   };
   const handleImageRemove = () => {
     setSelectedImage(null);
@@ -91,8 +121,7 @@ const Post = () => {
               style={{ display: "flex", marginTop: "2%" }}
             >
               <Avatar
-                src={usernameSelector.profile || avatar}
-                className="userModalProfile"
+                src={usernameSelector.profile }
               />
               <h4 className="userModalUsername" style={{ marginLeft: "10px" }}>
                 {usernameSelector.username}

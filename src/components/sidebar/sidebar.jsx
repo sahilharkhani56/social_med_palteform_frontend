@@ -4,8 +4,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SidebarItems from "./sidebarItems";
 import Box from "@mui/material/Box";
-import avatar from "../../assets/avatar.jpg";
-import {IconButton, Link } from "@mui/material";
+import { Link } from "@mui/material";
 import Post from "./post";
 import { Avatar,Menu,MenuItem } from "@mui/material";
 export const Sidebar = ({ defaultActive }) => {

@@ -31,12 +31,12 @@ export default function Information() {
   const dispatch = useDispatch();
   const usernameSelector = useSelector((state) => state.user.user);
   // dispatch(login(email));
-  console.log(
-    usernameSelector.email,
-    usernameSelector.username,
-    usernameSelector.profile,
-    usernameSelector.isInformationUpdated
-  );
+  // console.log(
+  //   usernameSelector.email,
+  //   usernameSelector.username,
+  //   usernameSelector.profile,
+  //   usernameSelector.isInformationUpdated
+  // );
   const navigateTo = useNavigate();
   const [Gender, setGender] = React.useState("");
   const [file, setFile] = React.useState(usernameSelector.profile);
@@ -140,7 +140,7 @@ export default function Information() {
       toast.success("Upadated sucessfully!");
       navigateTo("/home");
     } catch (error) {
-      toast.error(error);
+      toast.error(error.message);
       return;
     }
   };

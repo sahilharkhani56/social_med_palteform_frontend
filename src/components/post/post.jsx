@@ -1,6 +1,5 @@
 import React from "react";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import avatar from '../../assets'
 export const Post = ({ profilePic, image, username, timestamp, message }) => {
   return (
     <div className="post" >

@@ -5,7 +5,6 @@ const initialState = {
       email: null,
       username: null,
       profile: null,
-      isInformationUpdated:false
     },
   };
   

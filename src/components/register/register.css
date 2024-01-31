@@ -1,6 +1,12 @@
 .infotext{
     font-weight:700 !important;
     font-size:28px !important;
-    margin-bottom: 8% !important;
+    margin-bottom: 2% !important;
     font-family:sans-serif; 
+}
+.profileImgRegistration{
+  height: 80px !important;
+  width: 80px !important;
+  border: 2px solid #f1efef;
+  cursor: pointer;
 }
