@@ -95,7 +95,7 @@ export default function SignIn() {
       toast.error(error.message);
     }
     toast.success("Login Successfully");
-    navigateTo("/information");
+    navigateTo("/home ");
   };
 
   return (

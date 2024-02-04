@@ -10,13 +10,28 @@ import {
   List,
   ListItem,
   ListItemAvatar,
+  CircularProgress,
+  Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import firebase, { auth, db } from "../../setup/firebase.js";
 import axios from "axios";
 import "firebase/compat/firestore";
-const ShowLikes = ({ open, onClose, likeDetail }) => {
+const ShowLikes = ({ open, onClose,postData }) => {
   const [DetailEx, setDetailEx] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [likeDetail,setLikeDetail]=React.useState([]);
+  const fetchLike=async()=>{
+    try{
+      const docRefUser = firebase.firestore().collection("posts").doc(postData.postId);
+      docRefUser.onSnapshot((postDoc)=>{
+        const likesArray = postDoc.data().likes
+        setLikeDetail(likesArray)
+      })
+    }catch (error) {
+      toast.error(error.message);
+    }
+  }
   const dataExtraction = async (information) => {
     var tempInformation = [];
     const userPromises = information.map(async (id) => {
@@ -30,14 +45,18 @@ const ShowLikes = ({ open, onClose, likeDetail }) => {
     });
     await Promise.all(userPromises);
     setDetailEx(tempInformation);
+    setIsLoading(false)
   };
   React.useEffect(() => {
+    fetchLike()
     dataExtraction(likeDetail);
   }, [open]);
-  
+  React.useEffect(() => {
+    dataExtraction(likeDetail);
+  }, [likeDetail]);
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
+      <DialogTitle sx={{padding:'5px 10px'}} >
         <Box
           sx={{
             display: "flex",
@@ -51,9 +70,23 @@ const ShowLikes = ({ open, onClose, likeDetail }) => {
           </IconButton>
         </Box>
       </DialogTitle>
-      <DialogContent>
+      <Divider component="" sx={{ width: "100%" }} />
+      <DialogContent sx={{padding:'0px'}}>
+      {isLoading ? (
+                  <Box
+                    alignItems="center"
+                    justifyContent="center"
+                    sx={{
+                      display: "flex",
+                      height: "300px",
+                      width: "100%",
+                    }}
+                  >
+                    <CircularProgress/>
+                  </Box>
+                ) : (     
         <List
-          sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+          sx={{ width: "100%", maxWidth: 360,height:'300px', bgcolor: "background.paper"}}
           className="listFollowFollowing"
         >
           {DetailEx?.map((data, index) => (
@@ -82,6 +115,7 @@ const ShowLikes = ({ open, onClose, likeDetail }) => {
             </ListItem>
           ))}
         </List>
+        )}
       </DialogContent>
     </Dialog>
   );

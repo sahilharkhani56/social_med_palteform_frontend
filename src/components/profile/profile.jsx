@@ -1,6 +1,6 @@
 import { Sidebar } from "../sidebar/sidebar";
 import React from "react";
-import { Grid, Typography, Avatar, Button, Box, Stack } from "@mui/material";
+import { Grid, Typography, Avatar, Button, Box, Stack, Tabs, Tab } from "@mui/material";
 import { ArrowBack, Padding } from "@mui/icons-material";
 import AppBar from "@mui/material/AppBar";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -15,10 +15,37 @@ import firebase, { auth, db } from "../../setup/firebase.js";
 import "firebase/compat/firestore";
 import ShowFollowFollowing from "./showFollowFollowing.jsx";
 import "./profile.css";
+import SwipeableViews from "react-swipeable-views";
 var userDetailFetch;
 const docRef = firebase.firestore().collection("connections");
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`full-width-tabpanel-${index}`}
+      aria-labelledby={`full-width-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <div>{children}</div>
+        </Box>
+      )}
+    </div>
+  );
+}
+function a11yProps(index) {
+  return {
+    id: `full-width-tab-${index}`,
+    "aria-controls": `full-width-tabpanel-${index}`,
+  };
+}
 const Profile = () => {
   const usernameSelector = useSelector((state) => state.user.user);
+  const [value, setValue] = React.useState(0);
   const [isFollowing, setIsFollowing] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [followerCount, setfollowerCount] = React.useState(0);
@@ -159,6 +186,12 @@ const Profile = () => {
       }
       // setIsLoading(false);
     }
+  };
+  const handleChangeIndex = (index) => {
+    setValue(index);
+  };
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
   };
   React.useEffect(() => {
     fetchInfo();
@@ -337,24 +370,35 @@ const Profile = () => {
                   {userDetail?.bio}
                 </Typography>
               </Stack>
-              {/* <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              ></div>
-
-              <p>
-                Other Content Goes Here A paragraph is a series of sentences
-                that are organized and coherent, and are all related to a single
-                topic. Almost every piece of writing you do that is longer than
-                a few sentences should be organized into paragraphs. This is
-                because paragraphs show a reader where the subdivisions of an
-                essay begin and end, and thus help the reader see the
-                organization of the essay and grasp its main points. Paragraphs
-                can contain many different kinds of information. A paragraph
-              </p> */}
+              <AppBar
+                position="static"
+                sx={{ bgcolor: "background.paper", boxShadow: "none",marginTop:'2%' }}
+              >
+                <Tabs
+                  value={value}
+                  onChange={handleChange}
+                  indicatorColor="primary"
+                  variant="fullWidth"
+                  aria-label="full width tabs example"
+                >
+                  <Tab label="Posts" {...a11yProps(0)} />
+                  <Tab label="bookmarks" {...a11yProps(1)} />
+                </Tabs>
+              </AppBar>
+              <Box sx={{ bgcolor: "background.paper", width: "100%" }}>
+                <SwipeableViews
+                  index={value}
+                  onChangeIndex={handleChangeIndex}
+                  className="slider"
+                >
+                  <TabPanel value={value} index={0}>
+                    {/* <ShowList DetailEx={followerDetailEx} /> */}
+                  </TabPanel>
+                  <TabPanel value={value} index={1}>
+                    {/* <ShowList DetailEx={followingDetailEx} /> */}
+                  </TabPanel>
+                </SwipeableViews>
+              </Box>
             </React.Fragment>
           )}
         </Grid>

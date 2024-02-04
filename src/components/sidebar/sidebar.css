@@ -45,10 +45,13 @@
   border-radius: 50px;
   transition: color 100ms ease-out;
 }
-
+.current{
+  font-weight: 700 !important;
+}
 .sidebarRow > h4 {
-  margin-left: 20px;
-  font-weight: 600;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-weight: 500;
 }
 
 .sidebarRow > .MuiSvgIcon-root {
@@ -61,7 +64,8 @@
 @media (max-width: 1000px) {
   .sidebarRow > h4 {
     display: none; 
-    margin-left: 0px !important;/* Hide the text when the screen size is small */
+    margin-left: 0px !important;
+    margin-right: 0px !important;/* Hide the text when the screen size is small */
   }
   .sidebarRow > .MuiSvgIcon-root {
     font-size: xx-large; 

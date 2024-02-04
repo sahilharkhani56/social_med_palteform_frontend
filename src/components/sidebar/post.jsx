@@ -92,7 +92,7 @@ const Post = () => {
           onSubmit: handlePost,
         }}
       >
-        <DialogTitle>
+        <DialogTitle sx={{padding:'16px 16px'}}>
           <div className="post-header">
             <Tooltip
               title="Close"
@@ -111,6 +111,7 @@ const Post = () => {
             >
               <IconButton
                 className="close-btn"
+                
                 onClick={handleOpenPostModalClose}
               >
                 <CloseIcon />

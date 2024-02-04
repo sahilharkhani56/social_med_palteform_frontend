@@ -61,7 +61,7 @@ export const Sidebar = ({ defaultActive }) => {
               onClick={() => handleLinkClick(item.route, index)}
             >
               {index === activeIndex ? <item.filled /> : <item.outlined />}
-              <h4>{item.name}</h4>
+              <h4 className={index === activeIndex ? 'current':'allItems'}>{item.name}</h4>
             </Box>
           </Link>
         );

@@ -33,18 +33,25 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import ShowLikes from "./showLikes.jsx";
+import ShowComment from "./showComment.jsx";
 export default function FeedPost({ data }) {
   const usernameSelector = useSelector((state) => state.user.user);
-  const [currentUserUid,setCurrentUserUid]=React.useState(usernameSelector.uid)
+  const [currentUserUid, setCurrentUserUid] = React.useState(
+    usernameSelector.uid
+  );
   const [isFullScreen, setIsFullScreen] = React.useState(false);
   const [fullScreenImageUrl, setFullScreenImageUrl] = React.useState(null);
   const [isLiked, setIsLiked] = React.useState(false);
   const [likeCount, setLikeCount] = React.useState(null);
-  const [likeDetail,setLikeDetail]=React.useState([]);
+  const [likeDetail, setLikeDetail] = React.useState([]);
   const [commentCount, setCommentCount] = React.useState(null);
+  const [commentRef, setCommentRef] = React.useState([]);
   const [bookmarkCount, setBookmarkCount] = React.useState(null);
-  const [openLikesDialog,setOpenLikesDialog]=React.useState(false);
-  const milliseconds = data.createdAt.seconds * 1000 + data.createdAt.nanoseconds / 1e6;
+  const [isBoomarked, setIsBookmarked] = React.useState(false);
+  const [openLikesDialog, setOpenLikesDialog] = React.useState(false);
+  const [openCommentDialog, setOpenCommentDialog] = React.useState(false);
+  const milliseconds =
+    data.createdAt.seconds * 1000 + data.createdAt.nanoseconds / 1e6;
   const dateObject = new Date(milliseconds);
   const handleImageClick = (imageUrl) => {
     setFullScreenImageUrl(imageUrl);
@@ -61,54 +68,154 @@ export default function FeedPost({ data }) {
   const handleLike = async () => {
     setIsLiked(true);
     try {
-      const docRefUser = firebase.firestore().collection("posts").doc(data.postId);
+      const docRefUser = firebase
+        .firestore()
+        .collection("posts")
+        .doc(data.postId);
       await docRefUser.update({
-        likes:arrayUnion(currentUserUid),
+        likes: arrayUnion(currentUserUid),
       });
     } catch (error) {
       toast.error(error.message);
     }
   };
-  const handleUnlike =async() => {
+  const handleUnlike = async () => {
     setIsLiked(false);
-    try{
-      const docRefUser = firebase.firestore().collection("posts").doc(data.postId);
+    try {
+      const docRefUser = firebase
+        .firestore()
+        .collection("posts")
+        .doc(data.postId);
       await docRefUser.update({
-        likes:arrayRemove(currentUserUid),
+        likes: arrayRemove(currentUserUid),
       });
-    }catch (error) {
+    } catch (error) {
       toast.error(error.message);
     }
   };
-  const fetchLike=async()=>{
-    try{
-      const docRefUser = firebase.firestore().collection("posts").doc(data.postId);
-      docRefUser.onSnapshot((postDoc)=>{
-        const likesArray = postDoc.data().likes
-        setLikeDetail(likesArray)
-        if(likesArray.length>0)
-        setLikeCount(likesArray.length)
+  const fetchLike = async () => {
+    try {
+      const docRefUser = firebase
+        .firestore()
+        .collection("posts")
+        .doc(data.postId);
+      docRefUser.onSnapshot((postDoc) => {
+        const likesArray = postDoc.data().likes;
+        setLikeDetail(likesArray);
+        if (likesArray.length > 0) setLikeCount(likesArray.length);
+        if (likesArray.length == 0) setLikeCount(null);
+
         const isLikeExits = likesArray.includes(currentUserUid);
-        if(isLikeExits){
+        if (isLikeExits) {
           setIsLiked(true);
         }
-      })
-    }catch (error) {
+      });
+    } catch (error) {
       toast.error(error.message);
     }
-  }
-  const handleOpenShowLikes=()=>{
+  };
+  const fetchComment = async () => {
+    try {
+      const docRefUser = firebase
+        .firestore()
+        .collection("posts")
+        .doc(data.postId);
+      docRefUser.onSnapshot((postDoc) => {
+        const commentArray = postDoc.data().comments;
+        setCommentRef(commentArray);
+        if (commentArray.length > 0) setCommentCount(commentArray.length);
+        if (commentArray.length == 0) setCommentCount(null);
+      });
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  const fetchBookmark = async () => {
+    try {
+      const docRefBookmark = firebase
+        .firestore()
+        .collection("posts")
+        .doc(data.postId);
+      docRefBookmark.onSnapshot((bookmarkPost) => {
+        const bookmarkArray = bookmarkPost.data().bookmarks;
+        if (bookmarkArray.length > 0) setBookmarkCount(bookmarkArray.length);
+        if (bookmarkArray.length == 0) setBookmarkCount(null);
+        const isBookmarkExits = bookmarkArray.includes(currentUserUid);
+        if (isBookmarkExits) {
+          setIsBookmarked(true);
+        }
+      });
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  const handleOpenShowLikes = () => {
     setOpenLikesDialog(true);
-  }
-  const handleCloseLikesDialog=()=>{
+  };
+  const handleCloseLikesDialog = () => {
     setOpenLikesDialog(false);
-  }
-  const handleComment=()=>{
-    
-  }
-  React.useEffect(()=>{
+  };
+  const handleOpenCommentDialog = () => {
+    setOpenCommentDialog(true);
+    console.log("true");
+  };
+  const handleCloseCommentDialog = () => {
+    setOpenCommentDialog(false);
+  };
+  const handleAddBookmarked = async () => {
+    setIsBookmarked(true);
+    try {
+      const docRefUser = firebase
+        .firestore()
+        .collection("posts")
+        .doc(data.postId);
+      await docRefUser.update({
+        bookmarks: arrayUnion(currentUserUid),
+      });
+      const docBookmarkCollectionRef = firebase
+        .firestore()
+        .collection("bookmarks")
+        .doc(currentUserUid);
+      docBookmarkCollectionRef.onSnapshot((bookmarkPost) => {
+        docBookmarkCollectionRef.update({
+          posts: arrayUnion(data.postId),
+        });
+      });
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  const handleRemoveBookmarked = async () => {
+    setIsBookmarked(false);
+    try {
+      const docRefUser = firebase
+        .firestore()
+        .collection("posts")
+        .doc(data.postId);
+      await docRefUser.update({
+        bookmarks: arrayRemove(currentUserUid),
+      });
+      const docBookmarkCollectionRef = firebase
+        .firestore()
+        .collection("bookmarks")
+        .doc(currentUserUid);
+      docBookmarkCollectionRef.onSnapshot((bookmarkPost) => {
+        docBookmarkCollectionRef.update({
+          posts: arrayRemove(data.postId),
+        });
+      });
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  React.useEffect(() => {
     fetchLike();
-  },[data])
+    fetchComment();
+    fetchBookmark();
+  }, [data]);
+  // React.useEffect(() => {
+  //  console.log(bookmarkCount);
+  // }, [bookmarkCount]);
   // React.useEffect(()=>{
   //   console.log(likeDetail);
   // },[likeDetail])
@@ -130,7 +237,7 @@ export default function FeedPost({ data }) {
         title={data.username}
         subheader={dateObject.toLocaleString()}
       />
-      <CardContent style={{ paddingTop: "0" }}>
+      <CardContent style={{ paddingTop: "0",wordBreak: "break-word" }}>
         <Typography variant="body2" color="text.secondary">
           {data.text}
         </Typography>
@@ -207,22 +314,42 @@ export default function FeedPost({ data }) {
               </IconButton>
             )}
             <Typography onClick={handleOpenShowLikes}>{likeCount}</Typography>
-            {openLikesDialog?( <ShowLikes
+            {openLikesDialog ? (
+              <ShowLikes
                 open={openLikesDialog}
                 onClose={handleCloseLikesDialog}
-                likeDetail={likeDetail}
-              />):null} 
+                postData={data}
+              />
+            ) : null}
           </Box>
           <Box style={boxStyle} className="btnForComment">
-            <IconButton aria-label="comment" onClick={handleComment}>
+            <IconButton aria-label="comment" onClick={handleOpenCommentDialog}>
               <CommentOutlinedIcon />
             </IconButton>
             <Typography>{commentCount}</Typography>
+            {openCommentDialog ? (
+              <ShowComment
+                open={openCommentDialog}
+                onClose={handleCloseCommentDialog}
+                postData={data}
+              />
+            ) : null}
           </Box>
           <Box style={boxStyle} className="btnForbookmark">
-            <IconButton aria-label="bookmark">
-              <BookmarkBorderOutlinedIcon />
-            </IconButton>
+            {isBoomarked ? (
+              <IconButton
+                aria-label="bookmark"
+                sx={{ color: "black" }}
+                onClick={handleRemoveBookmarked}
+              >
+                <BookmarkIcon />
+              </IconButton>
+            ) : (
+              <IconButton aria-label="bookmark" onClick={handleAddBookmarked}>
+                <BookmarkBorderOutlinedIcon />
+              </IconButton>
+            )}
+
             <Typography>{bookmarkCount}</Typography>
           </Box>
         </Stack>
