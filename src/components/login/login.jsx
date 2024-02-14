@@ -40,6 +40,7 @@ export default function SignIn() {
         .then(async (userCredential) => {
           const docRef = firebase.firestore().collection("users").doc(auth.currentUser.uid);
           const userDataSnapShot = await docRef.get();
+          if(!userDataSnapShot.exists){toast.error("User Doesn't exits");return;}
             const userData = userDataSnapShot.data();
             dispatch(
               login({
@@ -91,11 +92,10 @@ export default function SignIn() {
         );
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.message);
     }
     toast.success("Login Successfully");
-    navigateTo("/home ");
+    navigateTo("/home");
   };
 
   return (

@@ -83,7 +83,7 @@ export default function Register() {
       }),
     ]);
     toast.success("Registered Successfully");
-    navigateTo('/');
+    navigateTo('/login');
   } catch (error) {
     toast.error(error.message);
   }

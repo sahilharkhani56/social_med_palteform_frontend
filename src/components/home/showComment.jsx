@@ -54,7 +54,6 @@ const ShowComment = ({ open, onClose, postData }) => {
       const timestamp = new Date(milliseconds);
       // const timeAgo = formatDistanceToNow(timestamp, { addSuffix: true });
       const formattedTime = formatTimeDifference(timestamp);
-      console.log(formattedTime);
       tempInformation.push({
         commentText,
         createdAt,
@@ -62,7 +61,6 @@ const ShowComment = ({ open, onClose, postData }) => {
         username,
         profile,
       });
-      // console.log(commentDataGet);
     });
     await Promise.all(userPromises);
     tempInformation.sort((a, b) => b.createdAt - a.createdAt);
@@ -84,12 +82,11 @@ const ShowComment = ({ open, onClose, postData }) => {
     const formData = new FormData(event.currentTarget);
     const formJson = Object.fromEntries(formData.entries());
     const commentField = formJson.commentField;
-    // console.log(commentField);
     const docRefComment = firebase.firestore().collection("comments");
     try {
       const docCommentData = await docRefComment.add({
         commentText: commentField,
-        createdBy: usernameSelector.uid,
+        createdBy: usernameSelector?.uid,
         createdAt: new Date(),
       });
       const createdCommentRef = docCommentData.id;
@@ -218,7 +215,7 @@ const ShowComment = ({ open, onClose, postData }) => {
           onSubmit={handleSubmitComment}
         >
           <Box sx={{ height: "40px" }}>
-            <Avatar src={usernameSelector.profile} alt="image" />
+            <Avatar src={usernameSelector?.profile} alt="image" />
           </Box>
           <OutlinedInput
             autoComplete="off"

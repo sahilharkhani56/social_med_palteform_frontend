@@ -20,16 +20,17 @@ import {
   ref as storageRef,
   uploadBytes,
 } from "firebase/storage";
-import {storage } from "../../setup/firebase";
+import { storage } from "../../setup/firebase";
 import { v4 as uuidv4 } from 'uuid';
 import axios from "axios";
+import toast from "react-hot-toast";
 const postUrl=`${import.meta.env.VITE_BACKEND_URI}/api/post`;
-const Post = () => {
+
+const Post = ({ open, handleOpenPostModalClose }) => {
   const usernameSelector = useSelector((state) => state.user.user);
-  const [open, setOpen] = React.useState(false);
   const [dataImage,setDataImage]=React.useState(null);
   const [selectedImage, setSelectedImage] = React.useState(null);
-  const [checkImageUploaded,setCheckImageUploaded]=React.useState(false);
+
   const handlePost = async(event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -62,25 +63,18 @@ const Post = () => {
       toast.error(error.message)
     }
   };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
-  };  
-  const handleOpenPostModalOpen = () => {
-    setOpen(true);
   };
-  const handleOpenPostModalClose = () => {
-    setSelectedImage(null);
-    setOpen(false);
-  };
+
   const handleImageRemove = () => {
     setSelectedImage(null);
   };
+
   return (
     <div>
-      <Button id="tweet" onClick={handleOpenPostModalOpen} >
-        POST
-      </Button>
       <Dialog
         open={open}
         onClose={handleOpenPostModalClose}
@@ -111,7 +105,6 @@ const Post = () => {
             >
               <IconButton
                 className="close-btn"
-                
                 onClick={handleOpenPostModalClose}
               >
                 <CloseIcon />

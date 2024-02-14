@@ -91,7 +91,6 @@ export const EditProfile = ({ userDetail }) => {
       );
       navigateTo(`/${usernameFieldModal}`, { replace: true });
     } catch (error) {
-      console.log(error);
       toast.error(error.message);
       return;
     }

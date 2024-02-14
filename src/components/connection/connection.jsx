@@ -15,7 +15,7 @@ const Connection = () => {
   const [searchData, setSearchData] = React.useState([]);
   const [check, setCheck] = React.useState(false);
   const fetchInfo = async () => {
-    const contects = await axios.get(`${urlAllResult}/${usernameSelector.uid}`);
+    const contects = await axios.get(`${urlAllResult}/${usernameSelector?.uid}`);
     setSearchData(contects.data);
   };
   React.useEffect(() => {
@@ -40,11 +40,11 @@ const Connection = () => {
   }
   return (
     <div className="grid-container">
-      <Grid container spacing={3}>
-        <Grid item xs="auto">
+      <Grid container>
+        {/* <Grid item xs={3} lg={3}>
           <Sidebar defaultActive={2} />
-        </Grid>
-        <Grid item xs={8} lg={6} className="connections">
+        </Grid> */}
+        <Grid item xs={12} lg={12} className="connections">
           <Typography className="searchTitle">Search</Typography>
           <div>
             <TextField
@@ -65,7 +65,7 @@ const Connection = () => {
            
           </div>
         </Grid>
-      </Grid>
+      </Grid> 
     </div>
   );
 };

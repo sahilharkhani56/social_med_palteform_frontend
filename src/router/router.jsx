@@ -9,9 +9,10 @@ import Bookmark from "../components/bookmark/bookmark";
 import Setting from "../components/setting/setting";
 import { AuthUser, UserExits } from "../middleware/authUser";
 import { lazy, Suspense } from "react";
+import Root from "../components/root";
 const Router = createBrowserRouter([
   {
-    path: "/",
+    path: "/login",
     element: <SignIn></SignIn>,
   },
   {
@@ -23,40 +24,40 @@ const Router = createBrowserRouter([
   //   element:<AuthUser><Information/></AuthUser>
   // },
   {
-    path: "/home",
+    path: "*",
     element: (
       <AuthUser>
-        <Home />
+        <Root />
       </AuthUser>
     ),
   },
-  {
-    path: "/messages",
-    element: <Message />,
-  },
-  {
-    path: "/connections",
-    element: <Connection />,
-  },
-  {
-    path: "/bookmarks",
-    element: <Bookmark />,
-  },
-  {
-    path: "/:profileName",
-    element: (
-      <UserExits>
-        <Profile />
-      </UserExits>
-    ),
-  },
-  {
-    path: "/setting",
-    element: <Setting />,
-  },
-  {
-    path: "*",
-    element: <SignIn></SignIn>,
-  },
+  // {
+  //   path: "/messages",
+  //   element: <Message />,
+  // },
+  // {
+  //   path: "/connections",
+  //   element: <Connection />,
+  // },
+  // {
+  //   path: "/bookmarks",
+  //   element: <Bookmark />,
+  // },
+  // {
+  //   path: "/:profileName",
+  //   element: (
+  //     <UserExits>
+  //       <Profile />
+  //     </UserExits>
+  //   ),
+  // },
+  // {
+  //   path: "/setting",
+  //   element: <Setting />,
+  // },
+  // {
+  //   path: "*",
+  //   element: <SignIn/>,
+  // },
 ]);
 export default Router;

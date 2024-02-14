@@ -9,9 +9,9 @@ import {
   Avatar,
   Typography,
   IconButton,
-  Collapse,
+  Menu,MenuItem,
   Stack,
-  Divider,
+  Button,
   Box,
 } from "@mui/material";
 import { red } from "@mui/material/colors";
@@ -34,10 +34,12 @@ import { useSelector } from "react-redux";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import ShowLikes from "./showLikes.jsx";
 import ShowComment from "./showComment.jsx";
-export default function FeedPost({ data }) {
+import { useMediaQuery } from "@chakra-ui/react";
+export default function FeedPost({ data,funcPostDelete,value ,isLast }) {
+  const [isLargerThan800] = useMediaQuery("(min-width: 760px)");
   const usernameSelector = useSelector((state) => state.user.user);
   const [currentUserUid, setCurrentUserUid] = React.useState(
-    usernameSelector.uid
+    usernameSelector?.uid
   );
   const [isFullScreen, setIsFullScreen] = React.useState(false);
   const [fullScreenImageUrl, setFullScreenImageUrl] = React.useState(null);
@@ -50,6 +52,9 @@ export default function FeedPost({ data }) {
   const [isBoomarked, setIsBookmarked] = React.useState(false);
   const [openLikesDialog, setOpenLikesDialog] = React.useState(false);
   const [openCommentDialog, setOpenCommentDialog] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const openPostSetting = Boolean(anchorEl);
+  // const [openPostSetting,setOpenPostSetting]=React.useState(false);
   const milliseconds =
     data.createdAt.seconds * 1000 + data.createdAt.nanoseconds / 1e6;
   const dateObject = new Date(milliseconds);
@@ -72,6 +77,8 @@ export default function FeedPost({ data }) {
         .firestore()
         .collection("posts")
         .doc(data.postId);
+        const postSnapshot=await docRefUser.get();
+        if(!postSnapshot.exists)return;
       await docRefUser.update({
         likes: arrayUnion(currentUserUid),
       });
@@ -86,6 +93,8 @@ export default function FeedPost({ data }) {
         .firestore()
         .collection("posts")
         .doc(data.postId);
+        const postSnapshot=await docRefUser.get();
+        if(!postSnapshot.exists)return;
       await docRefUser.update({
         likes: arrayRemove(currentUserUid),
       });
@@ -99,7 +108,10 @@ export default function FeedPost({ data }) {
         .firestore()
         .collection("posts")
         .doc(data.postId);
+        const postSnapshot=await docRefUser.get();
+        if(!postSnapshot.exists)return;
       docRefUser.onSnapshot((postDoc) => {
+        if(!postDoc.exists)return;
         const likesArray = postDoc.data().likes;
         setLikeDetail(likesArray);
         if (likesArray.length > 0) setLikeCount(likesArray.length);
@@ -120,7 +132,10 @@ export default function FeedPost({ data }) {
         .firestore()
         .collection("posts")
         .doc(data.postId);
+        const postSnapshot=await docRefUser.get();
+        if(!postSnapshot.exists)return;
       docRefUser.onSnapshot((postDoc) => {
+        if(!postDoc.exists)return;
         const commentArray = postDoc.data().comments;
         setCommentRef(commentArray);
         if (commentArray.length > 0) setCommentCount(commentArray.length);
@@ -136,7 +151,10 @@ export default function FeedPost({ data }) {
         .firestore()
         .collection("posts")
         .doc(data.postId);
+        const postSnapshot=await docRefBookmark.get();
+        if(!postSnapshot.exists)return;
       docRefBookmark.onSnapshot((bookmarkPost) => {
+        if(!bookmarkPost.exists)return;
         const bookmarkArray = bookmarkPost.data().bookmarks;
         if (bookmarkArray.length > 0) setBookmarkCount(bookmarkArray.length);
         if (bookmarkArray.length == 0) setBookmarkCount(null);
@@ -157,7 +175,6 @@ export default function FeedPost({ data }) {
   };
   const handleOpenCommentDialog = () => {
     setOpenCommentDialog(true);
-    console.log("true");
   };
   const handleCloseCommentDialog = () => {
     setOpenCommentDialog(false);
@@ -169,6 +186,8 @@ export default function FeedPost({ data }) {
         .firestore()
         .collection("posts")
         .doc(data.postId);
+        const postSnapshot=await docRefUser.get();
+        if(!postSnapshot.exists)return;
       await docRefUser.update({
         bookmarks: arrayUnion(currentUserUid),
       });
@@ -176,11 +195,16 @@ export default function FeedPost({ data }) {
         .firestore()
         .collection("bookmarks")
         .doc(currentUserUid);
-      docBookmarkCollectionRef.onSnapshot((bookmarkPost) => {
-        docBookmarkCollectionRef.update({
+      const bookmarkSnapshot = await docBookmarkCollectionRef.get();
+      if (!bookmarkSnapshot.exists) {
+        await docBookmarkCollectionRef.set({
+          posts: [data.postId],
+        });
+      } else {
+        await docBookmarkCollectionRef.update({
           posts: arrayUnion(data.postId),
         });
-      });
+      }
     } catch (error) {
       toast.error(error.message);
     }
@@ -199,15 +223,40 @@ export default function FeedPost({ data }) {
         .firestore()
         .collection("bookmarks")
         .doc(currentUserUid);
-      docBookmarkCollectionRef.onSnapshot((bookmarkPost) => {
-        docBookmarkCollectionRef.update({
-          posts: arrayRemove(data.postId),
-        });
+      await docBookmarkCollectionRef.update({
+        posts: arrayRemove(data.postId),
       });
     } catch (error) {
       toast.error(error.message);
     }
   };
+  const handleClickOpenPostSetting = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClickClosePostSetting = () => {
+    setAnchorEl(null);
+  };
+  const handleClickPostDelete=async()=>{
+    setAnchorEl(null);
+    const postId=data.postId;
+    try{
+      const docPostRef=firebase.firestore().collection('posts').doc(postId);
+      const snapshotPost=await docPostRef.get();
+      if(!snapshotPost.exists)return;
+      const {bookmarks}=snapshotPost.data();
+      bookmarks.forEach(userId => {
+        const docBookmarkRef=firebase.firestore().collection('bookmarks').doc(userId);
+        docBookmarkRef.update({
+          posts: arrayRemove(postId),
+        });
+      });
+
+      await docPostRef.delete();
+      funcPostDelete({postId,value})
+    }catch(error){
+      toast.error(error.message);
+    }
+  }
   React.useEffect(() => {
     fetchLike();
     fetchComment();
@@ -220,7 +269,7 @@ export default function FeedPost({ data }) {
   //   console.log(likeDetail);
   // },[likeDetail])
   return (
-    <Card sx={{ maxWidth: 900 }} className="postCard">
+    <Card sx={{ maxWidth: 900 }} className={isLargerThan800===false?'postCardMobile postCard':'postCard'}>
       <CardHeader
         avatar={
           <Avatar
@@ -230,14 +279,35 @@ export default function FeedPost({ data }) {
           />
         }
         action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
+          <React.Fragment>
+            <IconButton
+              aria-label="settings"
+              id="basic-button"
+              aria-controls={openPostSetting ? "basic-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={openPostSetting ? "true" : undefined}
+              onClick={handleClickOpenPostSetting}
+            >
+              <MoreVertIcon />
+            </IconButton>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={openPostSetting}
+              onClose={handleClickClosePostSetting}
+              MenuListProps={{
+                "aria-labelledby": "basic-button",
+              }}
+            >
+              <MenuItem onClick={handleClickClosePostSetting}>Report</MenuItem>
+              <MenuItem onClick={handleClickPostDelete} disabled={data.username===usernameSelector?.username?false:true} style={{color:'red'}}>Delete Post</MenuItem>
+            </Menu>
+          </React.Fragment>
         }
         title={data.username}
         subheader={dateObject.toLocaleString()}
       />
-      <CardContent style={{ paddingTop: "0",wordBreak: "break-word" }}>
+      <CardContent style={{ paddingTop: "0", wordBreak: "break-word" }}>
         <Typography variant="body2" color="text.secondary">
           {data.text}
         </Typography>

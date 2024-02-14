@@ -1,6 +1,5 @@
 .profilePortion {
   box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
-  padding-left: 0% !important;
   overflow: auto !important;
   height: 100vh;
 }
@@ -20,9 +19,8 @@
   font-weight: 700 !important;
 }
 .outerBoxProfile {
-  margin-top: 2%;
-  margin-left: 2%;
-  padding: 0% !important;
+  /* padding: 0% !important; */
+  padding: 24px;
 }
 .interDetails{
   display: flex;

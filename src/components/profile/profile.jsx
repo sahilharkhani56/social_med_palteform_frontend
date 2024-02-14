@@ -1,6 +1,15 @@
 import { Sidebar } from "../sidebar/sidebar";
-import React from "react";
-import { Grid, Typography, Avatar, Button, Box, Stack, Tabs, Tab } from "@mui/material";
+import React, { useRef } from "react";
+import {
+  Grid,
+  Typography,
+  Avatar,
+  Button,
+  Box,
+  Stack,
+  Tabs,
+  Tab,
+} from "@mui/material";
 import { ArrowBack, Padding } from "@mui/icons-material";
 import AppBar from "@mui/material/AppBar";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -16,8 +25,15 @@ import "firebase/compat/firestore";
 import ShowFollowFollowing from "./showFollowFollowing.jsx";
 import "./profile.css";
 import SwipeableViews from "react-swipeable-views";
+import FeedPost from "../home/feed.jsx";
+import toast from "react-hot-toast";
 var userDetailFetch;
 const docRef = firebase.firestore().collection("connections");
+const getPostUrl = `${import.meta.env.VITE_BACKEND_URI}/api/getCurrentuserPost`;
+const getBookmarkUrl = `${
+  import.meta.env.VITE_BACKEND_URI
+}/api/getCurrentuserBookmark`;
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -44,6 +60,7 @@ function a11yProps(index) {
   };
 }
 const Profile = () => {
+  const firstUpdate = useRef(true);
   const usernameSelector = useSelector((state) => state.user.user);
   const [value, setValue] = React.useState(0);
   const [isFollowing, setIsFollowing] = React.useState(false);
@@ -56,6 +73,9 @@ const Profile = () => {
   const [userDetail, setUserDetail] = React.useState({});
   const [open, setOpen] = React.useState(false);
   const { profileName } = useParams();
+  const [postData, setPostData] = React.useState(null);
+  const [bookMarkData, setBookMarkData] = React.useState(null);
+
   let navigate = useNavigate();
   const handleFollowToggle = () => {
     setIsFollowing((prev) => !prev);
@@ -67,7 +87,7 @@ const Profile = () => {
     setOpen(false);
   };
   const handleFollow = async () => {
-    const follower_id = usernameSelector.uid;
+    const follower_id = usernameSelector?.uid;
     const followee_id = userDetail.uid;
     try {
       await docRef.add({
@@ -75,12 +95,12 @@ const Profile = () => {
         followee_id,
       });
     } catch (error) {
-      console.log(error);
+      toast.error(error.message);
     }
     setIsFollowing((prev) => !prev);
   };
   const handleUnfollow = async () => {
-    const follower_id = usernameSelector.uid;
+    const follower_id = usernameSelector?.uid;
     const followee_id = userDetail.uid;
     try {
       const dataConnections = await docRef
@@ -89,7 +109,7 @@ const Profile = () => {
         .get();
       await dataConnections.docs[0].ref.delete();
     } catch (error) {
-      console.log(error);
+      toast.error(error.message);
     }
     setIsFollowing((prev) => !prev);
   };
@@ -149,8 +169,8 @@ const Profile = () => {
                 return querySnapshot.size;
               });
             },
-            (err) => {
-              console.log(`Encountered error: ${err}`);
+            (error) => {
+              toast.error(error.message);
             }
           );
       } catch (error) {
@@ -177,8 +197,8 @@ const Profile = () => {
                 return querySnapshot.size;
               });
             },
-            (err) => {
-              console.log(`Encountered error: ${err}`);
+            (error) => {
+              toast.error(error.message);
             }
           );
       } catch (error) {
@@ -193,16 +213,68 @@ const Profile = () => {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+  const fetchPosts = async () => {
+    try {
+      if (userDetail.uid != undefined) {
+        const responsePost = await axios.get(`${getPostUrl}/${userDetail.uid}`);
+        await Promise.resolve(responsePost);
+        if (responsePost.data.posts.length > 0) {
+          setPostData(responsePost.data.posts);
+        }
+        
+        setPostCount(responsePost.data.posts.length);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  const fetchBookmark = async () => {
+    try {
+      if (userDetail.uid != undefined) {
+        const responseBookmark = await axios.get(
+          `${getBookmarkUrl}/${userDetail.uid}`
+        );
+        await Promise.resolve(responseBookmark);
+        if (responseBookmark.data.posts.length > 0) {
+          setBookMarkData(responseBookmark.data.posts);
+        }
+        setIsLoading(false);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  const funcPostDelete = ({ postId, value }) => {
+    if (value === "post") {
+      const updatedItems = postData.filter((item) => item.postId !== postId);
+      setPostData(updatedItems);
+    } else {
+      const updatedItems = bookMarkData.filter(
+        (item) => item.postId !== postId
+      );
+      setBookMarkData(updatedItems);
+    }
+  };
+  // React.useEffect(() => {
+  //   fetchPosts();
+  // }, [usernameSelector]);
   React.useEffect(() => {
     fetchInfo();
   }, [profileName, usernameSelector]);
   React.useEffect(() => {
     // setIsLoading(true);
+    // if (firstUpdate.current) {
+    //   firstUpdate.current = false;
+    //   return;
+    // }
     const fetchData = async () => {
       await Promise.all([
         fetchFollowerCountDetail(),
         fetchFollowingCountDetail(),
         isFollowingCheck(),
+        fetchPosts(),
+        fetchBookmark(),
       ]);
       // Set isLoading to false after all data is fetched.
       setIsLoading(false);
@@ -220,11 +292,8 @@ const Profile = () => {
   // }, []);
   return (
     <div className="grid-container">
-      <Grid container spacing={3}>
-        <Grid item xs="auto">
-          <Sidebar defaultActive={4} />
-        </Grid>
-        <Grid item xs={8} lg={6} className="profilePortion">
+      <Grid container>
+        <Grid item xs={12} className="profilePortion">
           <AppBar component="nav" position="sticky" className="appBarProfile">
             <Toolbar variant="dense">
               <IconButton
@@ -331,7 +400,7 @@ const Profile = () => {
                       )}
                       <Grid direction="column" className="btnParent" container>
                         <Box textAlign="center">
-                          {profileName === usernameSelector.username ? (
+                          {profileName === usernameSelector?.username ? (
                             <EditProfile userDetail={userDetail}></EditProfile>
                           ) : (
                             <>
@@ -372,7 +441,11 @@ const Profile = () => {
               </Stack>
               <AppBar
                 position="static"
-                sx={{ bgcolor: "background.paper", boxShadow: "none",marginTop:'2%' }}
+                sx={{
+                  bgcolor: "background.paper",
+                  boxShadow: "none",
+                  marginTop: "2%",
+                }}
               >
                 <Tabs
                   value={value}
@@ -392,10 +465,58 @@ const Profile = () => {
                   className="slider"
                 >
                   <TabPanel value={value} index={0}>
-                    {/* <ShowList DetailEx={followerDetailEx} /> */}
+                    {postData ? (
+                      <React.Fragment>
+                        {postData.map((data, index) => {
+                          return (
+                            <FeedPost
+                              key={index}
+                              data={data}
+                              funcPostDelete={funcPostDelete}
+                              value="post"
+                            />
+                          );
+                        })}
+                      </React.Fragment>
+                    ) : (
+                      <center>
+                        <img
+                          src={`https://www.gstatic.com/dynamite/images/cr/onboardingzerostate/space_onboarding.svg`}
+                          alt=""
+                          loading="lazy"
+                        />
+                        <div>
+                          <Typography variant="h7">NO POSTS</Typography>
+                        </div>
+                      </center>
+                    )}
                   </TabPanel>
                   <TabPanel value={value} index={1}>
-                    {/* <ShowList DetailEx={followingDetailEx} /> */}
+                    {bookMarkData ? (
+                      <React.Fragment>
+                        {bookMarkData.map((data, index) => {
+                          return (
+                            <FeedPost
+                              key={index}
+                              data={data}
+                              funcPostDelete={funcPostDelete}
+                              value="bookmark"
+                            />
+                          );
+                        })}
+                      </React.Fragment>
+                    ) : (
+                      <center>
+                        <img
+                          src={`https://www.gstatic.com/dynamite/images/cr/empty_starred.svg`}
+                          alt=""
+                          loading="lazy"
+                        />
+                        <div>
+                          <Typography variant="h7">NO BOOKMARKS</Typography>
+                        </div>
+                      </center>
+                    )}
                   </TabPanel>
                 </SwipeableViews>
               </Box>

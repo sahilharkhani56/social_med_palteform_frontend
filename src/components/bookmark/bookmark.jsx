@@ -93,13 +93,13 @@ const Bookmark = () => {
   },[dataPost])
   return (
     <div className="grid-container">
-      <Grid container spacing={3}>
-        <Grid item xs="auto">
+      <Grid container>
+        <Grid item xs={3} lg={3}>
           <Sidebar defaultActive={3} />
         </Grid>
         <Grid
           item
-          xs={8}
+          xs={12}
           lg={6}
           height={"100vh"}
           overflow={"auto"}

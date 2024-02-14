@@ -4,3 +4,6 @@
 .btnForLikeFilled{
 	color: #ff597b !important;
 }
+.postCardMobile:last-child {
+	margin-bottom: 56px; /* Adjust as needed */
+}
