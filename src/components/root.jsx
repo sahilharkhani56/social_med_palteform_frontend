@@ -77,7 +77,7 @@ const Root = () => {
                   value={valueBottomNav}
                   onChange={(event, newValue) => {
                     setValueBottomNav(newValue);
-                    if (newValue === 3) navigateTo(`/${usernameSelector.username}`);
+                    if (newValue === 3) navigateTo(`/${usernameSelector?.username}`);
                     else if (newValue === 1) navigateTo("/messages");
                     else if (newValue === 2) navigateTo("/connections");
                     else navigateTo(`/home`);
@@ -93,7 +93,7 @@ const Root = () => {
                     icon={<PeopleIcon sx={{ fontSize: 30 }} />}
                   />
                   <BottomNavigationAction
-                    icon={<Avatar src={usernameSelector.profile || ""} />}
+                    icon={<Avatar src={usernameSelector?.profile || ""} />}
                   />
                 </BottomNavigation>
               </Paper>

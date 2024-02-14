@@ -2,19 +2,13 @@ import React from "react";
 import { Navigate, useParams } from "react-router-dom";
 import firebase, { auth, db } from "../setup/firebase.js";
 import "firebase/compat/firestore";
+
+import { useSelector } from "react-redux";
 export const AuthUser = ({ children }) => {
-  const [currentUser, setCurrentUser] = React.useState(null);
-  React.useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setCurrentUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
-  setInterval(() => {
-    if (!currentUser) {
-      return <Navigate to={"/"} replace={true}></Navigate>;
-    }
-  }, 1000);
+  const usernameSelector = useSelector((state) => state.user);
+  if (usernameSelector.user===null) {
+    return <Navigate to={"/login"} replace={true}></Navigate>;
+  }
   return children;
 };
 
