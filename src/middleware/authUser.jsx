@@ -5,8 +5,8 @@ import "firebase/compat/firestore";
 
 import { useSelector } from "react-redux";
 export const AuthUser = ({ children }) => {
-  const usernameSelector = useSelector((state) => state.user);
-  if (usernameSelector.user===null) {
+  const usernameSelector = useSelector((state) => state.user.user);
+  if (usernameSelector===null) {
     return <Navigate to={"/login"} replace={true}></Navigate>;
   }
   return children;
