@@ -24,7 +24,8 @@ import firebase, { auth, db } from "../../setup/firebase.js";
 import "firebase/compat/firestore";
 import ShowFollowFollowing from "./showFollowFollowing.jsx";
 import "./profile.css";
-import SwipeableViews from "react-swipeable-views";
+import PropTypes from "prop-types";
+// import SwipeableViews from "react-swipeable-views";
 import FeedPost from "../home/feed.jsx";
 import toast from "react-hot-toast";
 var userDetailFetch;
@@ -33,7 +34,30 @@ const getPostUrl = `${import.meta.env.VITE_BACKEND_URI}/api/getCurrentuserPost`;
 const getBookmarkUrl = `${
   import.meta.env.VITE_BACKEND_URI
 }/api/getCurrentuserBookmark`;
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
 
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+CustomTabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -55,8 +79,8 @@ function TabPanel(props) {
 }
 function a11yProps(index) {
   return {
-    id: `full-width-tab-${index}`,
-    "aria-controls": `full-width-tabpanel-${index}`,
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
   };
 }
 const Profile = () => {
@@ -221,7 +245,7 @@ const Profile = () => {
         if (responsePost.data.posts.length > 0) {
           setPostData(responsePost.data.posts);
         }
-        
+
         setPostCount(responsePost.data.posts.length);
         setIsLoading(false);
       }
@@ -458,8 +482,63 @@ const Profile = () => {
                   <Tab label="bookmarks" {...a11yProps(1)} />
                 </Tabs>
               </AppBar>
+
               <Box sx={{ bgcolor: "background.paper", width: "100%" }}>
-                <SwipeableViews
+                <CustomTabPanel value={value} index={0}>
+                  {postData ? (
+                    <React.Fragment>
+                      {postData.map((data, index) => {
+                        return (
+                          <FeedPost
+                            key={index}
+                            data={data}
+                            funcPostDelete={funcPostDelete}
+                            value="post"
+                          />
+                        );
+                      })}
+                    </React.Fragment>
+                  ) : (
+                    <center>
+                      <img
+                        src={`https://www.gstatic.com/dynamite/images/cr/onboardingzerostate/space_onboarding.svg`}
+                        alt=""
+                        loading="lazy"
+                      />
+                      <div>
+                        <Typography variant="h7">NO POSTS</Typography>
+                      </div>
+                    </center>
+                  )}
+                </CustomTabPanel>
+                <CustomTabPanel value={value} index={1}>
+                  {bookMarkData ? (
+                    <React.Fragment>
+                      {bookMarkData.map((data, index) => {
+                        return (
+                          <FeedPost
+                            key={index}
+                            data={data}
+                            funcPostDelete={funcPostDelete}
+                            value="bookmark"
+                          />
+                        );
+                      })}
+                    </React.Fragment>
+                  ) : (
+                    <center>
+                      <img
+                        src={`https://www.gstatic.com/dynamite/images/cr/empty_starred.svg`}
+                        alt=""
+                        loading="lazy"
+                      />
+                      <div>
+                        <Typography variant="h7">NO BOOKMARKS</Typography>
+                      </div>
+                    </center>
+                  )}
+                </CustomTabPanel>
+                {/* <SwipeableViews
                   index={value}
                   onChangeIndex={handleChangeIndex}
                   className="slider"
@@ -518,7 +597,7 @@ const Profile = () => {
                       </center>
                     )}
                   </TabPanel>
-                </SwipeableViews>
+                </SwipeableViews> */}
               </Box>
             </React.Fragment>
           )}

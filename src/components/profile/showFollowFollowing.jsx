@@ -8,13 +8,34 @@ import {
   Tabs,
   AppBar,
   CircularProgress,
+  Typography,
 } from "@mui/material";
 import firebase, { auth, db } from "../../setup/firebase.js";
 import "firebase/compat/firestore";
+import PropTypes from "prop-types";
 import { useTheme } from "@mui/material/styles";
-import SwipeableViews from "react-swipeable-views";
+// import SwipeableViews from "react-swipeable-views";
 import "./showFollowFollowing.css";
 import ShowList from "./listFollowFollowing.jsx";
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -34,10 +55,16 @@ function TabPanel(props) {
     </div>
   );
 }
+CustomTabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
+
 function a11yProps(index) {
   return {
-    id: `full-width-tab-${index}`,
-    "aria-controls": `full-width-tabpanel-${index}`,
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
   };
 }
 const ShowFollowFollowing = ({
@@ -120,9 +147,46 @@ const ShowFollowFollowing = ({
             </Tabs>
           </AppBar>
         </DialogTitle>
-        <DialogContent style={{ maxHeight: "300px", minHeight: "300px" }} className="listFollowFollowing">
+        <DialogContent
+          style={{ maxHeight: "300px", minHeight: "300px" }}
+          className="listFollowFollowing"
+        >
           <Box sx={{ bgcolor: "background.paper", width: "100%" }}>
-            <SwipeableViews
+            <CustomTabPanel value={value} index={0}>
+              {isLoading ? (
+                <Box
+                  alignItems="center"
+                  justifyContent="center"
+                  sx={{
+                    display: "flex",
+                    height: "300px",
+                    width: "100%",
+                  }}
+                >
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <ShowList DetailEx={followerDetailEx} />
+              )}
+            </CustomTabPanel>
+            <CustomTabPanel value={value} index={1}>
+              {isLoading ? (
+                <Box
+                  alignItems="center"
+                  justifyContent="center"
+                  sx={{
+                    display: "flex",
+                    height: "300px",
+                    width: "100%",
+                  }}
+                >
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <ShowList DetailEx={followingDetailEx} />
+              )}
+            </CustomTabPanel>
+            {/* <SwipeableViews
               index={value}
               onChangeIndex={handleChangeIndex}
               className="slider"
@@ -161,7 +225,7 @@ const ShowFollowFollowing = ({
                 <ShowList DetailEx={followingDetailEx} />
                 )}
               </TabPanel>
-            </SwipeableViews>
+            </SwipeableViews> */}
           </Box>
         </DialogContent>
       </Dialog>
