@@ -13,7 +13,7 @@ const Router = createBrowserRouter([
     element: <Register></Register>,
   },
   {
-    path: "*",
+    path: "/",
     element: (
       <AuthUser>
         <Root />
