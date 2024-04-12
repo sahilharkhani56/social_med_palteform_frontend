@@ -1,0 +1,84 @@
+.msgPortion::-webkit-scrollbar {
+    display: none;
+  }
+  .msgPortion{
+    /* padding: 24px 24px 0px 24px; */
+    overflow: auto;
+    height: 100vh;
+    box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  .searchBarMsg {
+    background-color: #fff !important;
+    color: #000 !important;
+    margin-top: 0% !important;
+    width: 100% !important;
+  }
+  .searchFriendMsg{
+    padding: 6px 24px 12px 24px;
+  }
+  .userList {
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    color: #000000;
+}
+.inputText{
+    width:100% !important;
+    outline: none !important;
+    border: none !important;
+}
+.fromMsg{
+    color: rgb(0, 0, 0) !important;
+    /* position: absolute; */
+  /* float: right; */
+  /* margin-left: auto; */
+  /* margin-right: auto; */
+    margin-top: 3px;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 5px;
+
+}
+
+.msgTextField{
+    margin-right: 0.7rem;
+    border-radius: 20px;
+    color: #ffffff;
+    background-color: #1DA1F2;
+    /* color: #000;
+    background-color: #f1f1f1; */
+    width: fit-content;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: medium !important;
+}
+.msgTextFieldReceiver{
+    margin-left: 0.7rem;
+    border-radius: 20px;
+    /* color: #ffffff;
+    background-color: #1DA1F2; */
+    color: #000;
+    background-color: #f1f1f1;
+    width: fit-content;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: medium !important;
+}
+.toMsg{
+    color: rgb(0, 0, 0) !important;
+    /* position: absolute; */
+  /* float: right; */
+  /* margin-left: auto; */
+  /* margin-right: auto; */
+    margin-top: 3px;
+    margin-bottom: 3px;
+    /* display: flex;
+    justify-content: flex-end; */
+    margin-left: 5px;
+}
+.timestamp{
+    font-size: 11px !important;
+}

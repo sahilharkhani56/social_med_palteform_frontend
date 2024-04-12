@@ -1,17 +1,18 @@
 import React from "react";
 import { Sidebar } from "./sidebar/sidebar";
 import Grid from "@mui/material/Grid";
-import { Route, Router, Routes, useNavigate,Navigate  } from "react-router-dom";
+import { Route, Router, Routes, useNavigate,Navigate, useLocation  } from "react-router-dom";
 import Home from "./home/home";
+import AllContect from "./message/allContect";
+import UserChat from "./message/userchat";
 import Message from "./message/message";
 import Connection from "./connection/connection";
 import Setting from "./setting/setting";
 import Profile from "./profile/profile";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import MailIcon from "@mui/icons-material/Mail";
-import ArchiveIcon from "@mui/icons-material/Archive";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
+import Schedule from "./schedule/schedule";
 import {
   Avatar,
   BottomNavigation,
@@ -26,6 +27,7 @@ import { useMediaQuery } from "@chakra-ui/react";
 import Post from "./sidebar/post";
 const Root = () => {
   // const ismobile = usemediaquery({ query: `(max-width: 760px)` });
+  const location=useLocation();
   const navigateTo = useNavigate();
   const [isLargerThan800] = useMediaQuery("(min-width: 760px)");
   const usernameSelector = useSelector((state) => state.user.user);
@@ -51,19 +53,22 @@ const Root = () => {
           <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/home" exact  element={<Home />} />
-            <Route path="/messages" element={<Message />} />
+            <Route path="/allcontect" element={<AllContect/>} />
             <Route path="/connections" element={<Connection />} />
             <Route path="/setting" element={<Setting />} />
             <Route path="/:profileName" element={<Profile />} />
+            <Route path="/messages/:profileName" element={<UserChat />}/>
+            <Route path="/messages" element={<Message/>}/>
+            <Route path="/schedule" element={<Schedule/>}/>
           </Routes>
           {isLargerThan800 ? null : (
             <React.Fragment>
-            <IconButton
+            {(location.pathname!='/messages') && (location.pathname!='/allcontect'&&location.pathname[1]!='m' && location.pathname[8]!='s' )?<IconButton
             style={{ position: "absolute", bottom: 66, right: 10,backgroundColor:'#1DA1F2',color:'white',borderRadius:'100%',height:'50px',width:'50px',fontSize:'40px' }}
             onClick={handleOpenPostModalOpen}
           >
             +
-          </IconButton>
+          </IconButton>:null}
           {openPost ? (
         <Post open={openPost} handleOpenPostModalClose={handleOpenPostModalClose} />
       ) : null}

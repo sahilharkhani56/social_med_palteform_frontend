@@ -1,7 +1,7 @@
 import React from "react";
 import "./sidebar.css";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import SidebarItems from "./sidebarItems";
 import Box from "@mui/material/Box";
 import { Button, Link } from "@mui/material";
@@ -11,12 +11,13 @@ import { getAuth, signOut } from "firebase/auth";
 import toast from "react-hot-toast";
 import { logout } from "../../store/userSlice";
 export const Sidebar = ({ defaultActive }) => {
+  const location=useLocation();
   const dispatch = useDispatch();
   const usernameSelector = useSelector((state) => state.user.user);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
   const [openPost, setOpenPost] = React.useState(false);
   const { profileName } = useParams();
-  const open = Boolean(anchorEl);
   const [activeIndex, setActiveIndex] = React.useState(
     JSON.parse(localStorage.getItem("index"))
   );
@@ -35,7 +36,9 @@ export const Sidebar = ({ defaultActive }) => {
   const handleOpenMenuProfile = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {};
+  const handleClose = () => {
+    setAnchorEl(null)
+  };
   const signOutAuth = () => {
     setAnchorEl(null);
     const auth = getAuth();
@@ -56,6 +59,7 @@ export const Sidebar = ({ defaultActive }) => {
   };
   return (
     <div className="sidebar">
+    {/* {console.log(location.pathname)} */}
       <Box className="sidebarRow" onClick={handleOpenMenuProfile}>
         <Avatar src={usernameSelector?.profile || ""} />
         <h4>{usernameSelector?.username}</h4>

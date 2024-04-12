@@ -1,5 +1,4 @@
 import * as React from "react";
-import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
 import {
   CardHeader,
@@ -17,13 +16,10 @@ import {
 import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
-import ShareIcon from "@mui/icons-material/Share";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
-import CommentOutlinedIcon from "@mui/icons-material/CommentOutlined";
-import moment from "moment";
+import CommentOutlinedIcon from "@mui/icons-material/CommentOutlined"
 import { Dialog } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import firebase, { auth, db } from "../../setup/firebase.js";
@@ -31,7 +27,7 @@ import "firebase/compat/firestore";
 import "./feed.css";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
-import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { arrayUnion, arrayRemove } from "firebase/firestore";
 import ShowLikes from "./showLikes.jsx";
 import ShowComment from "./showComment.jsx";
 import { useMediaQuery } from "@chakra-ui/react";

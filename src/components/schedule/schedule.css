@@ -1,0 +1,19 @@
+.scheduleInput{
+    border: 1px solid black;
+    width:100%;
+    border-radius: 50px;
+}
+.completed{
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+.individualBox{
+    margin-top: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    box-shadow: none !important;
+    border: 0.5px solid rgb(168, 168, 168);
+    border-radius: 30px !important;
+}

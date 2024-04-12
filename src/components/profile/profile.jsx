@@ -9,15 +9,18 @@ import {
   Stack,
   Tabs,
   Tab,
+  Menu,
+  MenuItem,
 } from "@mui/material";
-import { ArrowBack, Padding } from "@mui/icons-material";
+import { getAuth, signOut } from "firebase/auth";
+import { ArrowBack, MoreVert } from "@mui/icons-material";
 import AppBar from "@mui/material/AppBar";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { EditProfile } from "./editProfile";
 import firebase, { auth, db } from "../../setup/firebase.js";
@@ -86,7 +89,9 @@ function a11yProps(index) {
 const Profile = () => {
   const firstUpdate = useRef(true);
   const usernameSelector = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
   const [value, setValue] = React.useState(0);
+  const navigateTo = useNavigate();
   const [isFollowing, setIsFollowing] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [followerCount, setfollowerCount] = React.useState(0);
@@ -99,7 +104,8 @@ const Profile = () => {
   const { profileName } = useParams();
   const [postData, setPostData] = React.useState(null);
   const [bookMarkData, setBookMarkData] = React.useState(null);
-
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const openE = Boolean(anchorEl);
   let navigate = useNavigate();
   const handleFollowToggle = () => {
     setIsFollowing((prev) => !prev);
@@ -280,6 +286,24 @@ const Profile = () => {
       setBookMarkData(updatedItems);
     }
   };
+  const handleClose = () => {
+    setAnchorEl(null)
+  };
+  const signOutAuth = () => {
+    setAnchorEl(null);
+    const auth = getAuth();
+    signOut(auth)
+      .then(() => {
+        dispatch(logout());
+        navigateTo("/login");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  };
+  const openLogout = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
   // React.useEffect(() => {
   //   fetchPosts();
   // }, [usernameSelector]);
@@ -306,6 +330,9 @@ const Profile = () => {
 
     fetchData();
   }, [userDetail]);
+  const addSchedule=()=>{
+    navigateTo('/schedule')
+  }
   // React.useEffect(() => {
   //   const d = setTimeout(() => {
   //     setIsLoading(false);
@@ -337,6 +364,34 @@ const Profile = () => {
               >
                 {profileName}
               </Typography>
+              {profileName === usernameSelector?.username ? (
+                <React.Fragment>
+                  <Box sx={{ flexGrow: 1 }} />
+                  <IconButton
+                    color="inherit"
+                    aria-label="more options"
+                    onClick={openLogout}
+                  >
+                    <MoreVert />
+                  </IconButton>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={openE}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      "aria-labelledby": "basic-button",
+                    }}
+                  >
+                  <MenuItem onClick={addSchedule} >
+                      Add Schedule
+                    </MenuItem>
+                    <MenuItem onClick={signOutAuth} style={{ color: "red" }}>
+                      Logout
+                    </MenuItem>
+                  </Menu>
+                </React.Fragment>
+              ) : null}
             </Toolbar>
           </AppBar>
 
