@@ -26,6 +26,7 @@ import { EditProfile } from "./editProfile";
 import firebase, { auth, db } from "../../setup/firebase.js";
 import "firebase/compat/firestore";
 import ShowFollowFollowing from "./showFollowFollowing.jsx";
+import { logout } from "../../store/userSlice";
 import "./profile.css";
 import PropTypes from "prop-types";
 // import SwipeableViews from "react-swipeable-views";
